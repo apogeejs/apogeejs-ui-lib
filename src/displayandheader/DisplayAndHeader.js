@@ -1,4 +1,4 @@
-import uiutil from "/apogeeui/uiutil.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is is a layout element to fill a parent element with a header element and
  * a display element which takes all the remaning vertical space.

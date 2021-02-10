@@ -1,4 +1,4 @@
-import uiutil from "/apogeeui/uiutil.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** Thiis is a namespace with functions to control menu operation
  *

@@ -1,7 +1,7 @@
-import apogeeutil from "/apogeeutil/apogeeUtilLib.js";
-import {EventManager} from "/apogeebase/apogeeBaseLib.js";
-import DisplayAndHeader from "/apogeeui/displayandheader/DisplayAndHeader.js";
-import uiutil from "/apogeeui/uiutil.js";
+import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
+import {EventManager} from "/apogeejs-base-lib/src/apogeeBaseLib.js";
+import DisplayAndHeader from "/apogeejs-ui-lib/src/displayandheader/DisplayAndHeader.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 export default class Tab {
 

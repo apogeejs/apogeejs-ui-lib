@@ -1,6 +1,6 @@
-import uiutil from "/apogeeui/uiutil.js";
-import DialogFrame from "/apogeeui/window/DialogFrame.js";
-import WindowParent from "/apogeeui/window/WindowParent.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
+import DialogFrame from "/apogeejs-ui-lib/src/window/DialogFrame.js";
+import WindowParent from "/apogeejs-ui-lib/src/window/WindowParent.js";
 
 let dialogMgr = {};
 export {dialogMgr as default};

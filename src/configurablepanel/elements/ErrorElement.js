@@ -1,4 +1,4 @@
-import ConfigurableElement from "/apogeeui/configurablepanel/ConfigurableElement.js";
+import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 
 /** This is a heading element configurable element.
  * 

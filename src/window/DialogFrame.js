@@ -1,4 +1,4 @@
-import uiutil from "/apogeeui/uiutil.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is a simple window frame component. It is movable but not resizable.
  *

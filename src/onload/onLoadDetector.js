@@ -1,4 +1,4 @@
-import uiutil from "/apogeeui/uiutil.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This file provides a load listener. The element must be a positioned element
  * (position must be set to something besides static. It can only be done once per element(!)

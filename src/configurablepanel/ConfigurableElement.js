@@ -1,6 +1,6 @@
-import ConfigurablePanelConstants from "/apogeeui/configurablepanel/ConfigurablePanelConstants.js";
-import uiutil from "/apogeeui/uiutil.js";
-import {getHelpElement} from "/apogeeui/tooltip/tooltip.js";
+import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
+import {getHelpElement} from "/apogeejs-ui-lib/src/tooltip/tooltip.js";
 
 /** This is an element that composes the content of a configurable panel.
  * 

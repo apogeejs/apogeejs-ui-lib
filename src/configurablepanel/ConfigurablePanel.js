@@ -1,6 +1,6 @@
-import ConfigurablePanelConstants from "/apogeeui/configurablepanel/ConfigurablePanelConstants.js";
-import uiutil from "/apogeeui/uiutil.js";
-import ErrorElement from "/apogeeui/configurablepanel/elements/ErrorElement.js";
+import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
+import ErrorElement from "/apogeejs-ui-lib/src/configurablepanel/elements/ErrorElement.js";
 
 /** This is a panel with forma elements that can be configured using a javascript object.
  * 

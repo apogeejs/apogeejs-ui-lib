@@ -1,4 +1,4 @@
-import ConfigurableElement from "/apogeeui/configurablepanel/ConfigurableElement.js";
+import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 
 /** This element holds a value that can only be set during configuration. The element is not 
  * visible on the form.

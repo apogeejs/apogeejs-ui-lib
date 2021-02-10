@@ -1,6 +1,6 @@
-import ConfigurablePanelConstants from "/apogeeui/configurablepanel/ConfigurablePanelConstants.js";
-import ConfigurableElement from "/apogeeui/configurablepanel/ConfigurableElement.js";
-import uiutil from "/apogeeui/uiutil.js";
+import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
+import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is an submit element configurable element.
  * 

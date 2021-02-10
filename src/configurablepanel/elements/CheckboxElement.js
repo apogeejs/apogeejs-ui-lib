@@ -1,5 +1,5 @@
-import ConfigurableElement from "/apogeeui/configurablepanel/ConfigurableElement.js";
-import uiutil from "/apogeeui/uiutil.js";
+import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is an text field element configurable element.
  * 

@@ -1,4 +1,4 @@
-import {uiutil,dialogMgr} from "/apogeeui/apogeeUiLib.js";
+import {uiutil,dialogMgr} from "/apogeejs-ui-lib/src/apogeeUiLib.js";
 
 /** This dialog has a title, message and a number of buttons and associated actions. 
  * Both the title and message are optional.

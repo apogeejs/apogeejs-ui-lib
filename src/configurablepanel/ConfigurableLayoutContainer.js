@@ -1,6 +1,6 @@
-import ConfigurableElement from "/apogeeui/configurablepanel/ConfigurableElement.js";
-import ConfigurablePanel from "/apogeeui/configurablepanel/ConfigurablePanel.js";
-import uiutil from "/apogeeui/uiutil.js";
+import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
+import ConfigurablePanel from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanel.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is a item that can be placed inside a panel container. In the initialization config it has child
  * configurable elements (and configurable layout containers), however any child configurable element is included as a

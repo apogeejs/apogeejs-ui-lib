@@ -1,4 +1,4 @@
-import uiutil from "/apogeeui/uiutil.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
  /** This function wraps a given content element so it has a tooltip. 
   * Argments:

@@ -1,5 +1,5 @@
-import apogeeutil from "/apogeeutil/apogeeUtilLib.js";
-import {uiutil,dialogMgr} from "/apogeeui/apogeeUiLib.js";
+import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
+import {uiutil,dialogMgr} from "/apogeejs-ui-lib/src/apogeeUiLib.js";
 
 /** This method shows a configurable dialog. The layout object
  * defines the form content for the dialog. The on submit

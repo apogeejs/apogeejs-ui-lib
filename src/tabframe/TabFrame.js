@@ -1,6 +1,6 @@
-import apogeeutil from "/apogeeutil/apogeeUtilLib.js";
-import {EventManager} from "/apogeebase/apogeeBaseLib.js";
-import uiutil from "/apogeeui/uiutil.js";
+import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
+import {EventManager} from "/apogeejs-base-lib/src/apogeeBaseLib.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is a tab frame.
  * 
