@@ -1,4 +1,6 @@
-import {uiutil,dialogMgr,ConfigurablePanel} from "/apogeejs-ui-lib/src/apogeeUiLib.js";
+import ConfigurablePanel from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanel.js";
+import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
+import dialogMgr from "/apogeejs-ui-lib/src/window/dialogMgr.js";
 
 /** This method shows a configurable dialog. The layout object
  * defines the form content for the dialog. The on submit
