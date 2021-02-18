@@ -1,5 +1,17 @@
 {
-    "filesToCopy": [
-        "/apogeejs-ui-lib/package.json"
-    ]
+    "repoName": "apogeejs-ui-lib",
+    "isProductionRelease": false,
+
+    "makeEsModule": true,
+    "esModuleFileName": "apogeeUiLib.js",
+    "esFilesToCopyUrls": [
+        "/apogeejs-view-lib/versionInfo.json"
+    ],
+    "esExternalLibs": [
+        "/apogeejs-base-lib/src/apogeeBaseLib.js",
+        "/apogeejs-util-lib/src/apogeeUtilLib.js"
+    ],
+    "esExternalLibRemapping": {},
+
+    "makeNpmModule": false
 }
