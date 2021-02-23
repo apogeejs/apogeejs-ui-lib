@@ -20,8 +20,8 @@ export default class ShowHideLayout extends ConfigurableLayoutContainer {
 
         this.initialized = false;
 
-        this.openedUrl = uiutil.getResourcePath("/opened_bluish.png");
-        this.closedUrl = uiutil.getResourcePath("/closed_bluish.png");
+        this.openedUrl = uiutil.getResourcePath("/opened_bluish.png","ui-lib");
+        this.closedUrl = uiutil.getResourcePath("/closed_bluish.png","ui-lib");
 
         this._initializeContainer(containerInitData);
     }

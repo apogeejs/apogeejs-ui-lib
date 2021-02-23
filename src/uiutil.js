@@ -2,14 +2,37 @@
 let uiutil = {};
 export {uiutil as default};
 
-/** This should be called to initializethe resource path. */
-uiutil.initResourcePath = function(resourceDirectory) {
-    uiutil.RESOURCE_DIR = resourceDirectory;
+/** This should be called to initialize the resource path(s). The format is
+ * {
+ *     defaultResourcePath: "default path ending with no backslash", 
+ *     domainMap: { 
+ *         (domain name): "domain path ending with no backslash"
+ *         ...
+ *     }
+ * }
+ * 
+ * The domain map is optional. It is to allow for different resource folders, such as for different repos.
+*/
+uiutil.initResourcePath = function(resourceInfo) {
+    if(resourceInfo instanceof String) {
+        resourceInfo = {
+            defaultResourcePath: resourceInfo
+        }   
+    }
+
+    uiutil.RESOURCE_INFO = resourceInfo;
 }
 
-/** This retreives the resoruce path for a resource. */
-uiutil.getResourcePath = function(relativePath) {
-    return uiutil.RESOURCE_DIR + relativePath;
+/** This retreives the resource path for a resource. The domain argument is optional. */
+uiutil.getResourcePath = function(relativePath,domain) {
+    let basePath;
+    if((domain)&&(uiutil.RESOURCE_INFO.domainMap !== undefined)) {
+        basePath = uiutil.RESOURCE_INFO.domainMap[domain];     
+    }
+    else {
+        basePath = uiutil.RESOURCE_INFO.defaultResourcePath;
+    }
+    return basePath + relativePath;
 }
 
 //I put some utilities in here. I shoudl figure out a better place to put this.

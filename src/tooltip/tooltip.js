@@ -44,7 +44,7 @@ export function wrapWithTooltip(contentElement,text,options) {
   * - imgElement - the 'help' image element
   */
 export function getHelpElement(helpText,options) {
-    let helpIconUrl = uiutil.getResourcePath(HELP_ICON_PATH);
+    let helpIconUrl = uiutil.getResourcePath(HELP_ICON_PATH,"ui-lib");
     let helpImgElement = document.createElement("img");
     helpImgElement.className = "apogee_tooltip_help_image"
     if(options) {

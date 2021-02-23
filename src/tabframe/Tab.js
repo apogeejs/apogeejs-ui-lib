@@ -20,7 +20,7 @@ export default class Tab {
         this.titleElement = uiutil.createElementWithClass("div","visiui_tf_tab_title",this.tabLabelElement);
         
         this.closeButton = uiutil.createElementWithClass("img","visiui_tf_tab_cmd_button",this.tabLabelElement);
-        this.closeButton.src = uiutil.getResourcePath(uiutil.CLOSE_CMD_IMAGE);
+        this.closeButton.src = uiutil.getResourcePath(uiutil.CLOSE_CMD_IMAGE,"ui-lib");
         
         this.closeButton.onclick = () => {
             this.close();
@@ -97,7 +97,8 @@ export default class Tab {
     /** This method shows the window. */
     setIconUrl(iconUrl) {
         if(!iconUrl) {
-            iconUrl = uiutil.getResourcePath(uiutil.GENERIC_CELL_ICON);
+            //icons are in the app domain/repo. A generic icon should be placed at this name.
+            iconUrl = uiutil.getResourcePath(uiutil.GENERIC_CELL_ICON,"app");
         }
 
         this.icon.src = iconUrl; 

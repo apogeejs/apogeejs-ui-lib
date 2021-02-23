@@ -13,9 +13,9 @@ export default class ListElement extends ConfigurableElement {
 
         var containerElement = this.getElement();
 
-        this.upUrl = uiutil.getResourcePath("/up_black.png");
-        this.downUrl = uiutil.getResourcePath("/down_black.png");
-        this.closeUrl = uiutil.getResourcePath("/close_black.png");
+        this.upUrl = uiutil.getResourcePath("/up_black.png","ui-lib");
+        this.downUrl = uiutil.getResourcePath("/down_black.png","ui-lib");
+        this.closeUrl = uiutil.getResourcePath("/close_black.png","ui-lib");
         
         //label
         let labelElement = this.getLabelElement(elementInitData);

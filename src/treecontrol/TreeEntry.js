@@ -6,14 +6,10 @@ export default class TreeEntry {
 
     constructor(labelText,iconSrc,clickCallback,menuItemCallback,isRoot) {
         
-        // this.contractUrl = uiutil.getResourcePath("/opened_bluish.png");
-        // this.expandUrl = uiutil.getResourcePath("/closed_bluish.png");
-        // this.noControlUrl = uiutil.getResourcePath("/circle_bluish.png");
-        // this.emptyControlUrl = uiutil.getResourcePath("/circle_bluish.png");
-        this.contractUrl = uiutil.getResourcePath("/opened_darkgray.png");
-        this.expandUrl = uiutil.getResourcePath("/closed_darkgray.png");
-        this.noControlUrl = uiutil.getResourcePath("/circle_darkgray.png");
-        this.emptyControlUrl = uiutil.getResourcePath("/circle_darkgray.png");
+        this.contractUrl = uiutil.getResourcePath("/opened_darkgray.png","ui-lib");
+        this.expandUrl = uiutil.getResourcePath("/closed_darkgray.png","ui-lib");
+        this.noControlUrl = uiutil.getResourcePath("/circle_darkgray.png","ui-lib");
+        this.emptyControlUrl = uiutil.getResourcePath("/circle_darkgray.png","ui-lib");
         
         this.isRoot = isRoot;
         
@@ -42,7 +38,8 @@ export default class TreeEntry {
 
         //icon/menu
         if(!iconSrc) {
-            iconSrc = uiutil.getResourcePath(uiutil.GENERIC_CELL_ICON);
+            //cell icon is in the app domain. There should be a generic icon here
+            iconSrc = uiutil.getResourcePath(uiutil.GENERIC_CELL_ICON,"app");
         }
 
         this.iconContainerElement = uiutil.createElementWithClass("div", "visiui-tc-icon-container",this.mainContent);
@@ -58,7 +55,7 @@ export default class TreeEntry {
 
         //menu
         if(menuItemCallback) {
-            let menuImage = uiutil.getResourcePath(uiutil.DOT_MENU_IMAGE);
+            let menuImage = uiutil.getResourcePath(uiutil.DOT_MENU_IMAGE,"ui-lib");
             this.menu = Menu.createMenuFromImage(menuImage);
             this.menu.setAsOnTheFlyMenu(menuItemCallback);
             let menuElement = this.menu.getElement();

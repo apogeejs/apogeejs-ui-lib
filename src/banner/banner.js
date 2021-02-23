@@ -87,7 +87,7 @@ export function getIconOverlay(bannerState,tooltip) {
     
     var iconOverlayElement = document.createElement("img");
     if(resource) {
-        var url = uiutil.getResourcePath(resource);
+        var url = uiutil.getResourcePath(resource,"ui-lib");
         iconOverlayElement.src = url;
         if(tooltip) iconOverlayElement.title = tooltip;
     }
