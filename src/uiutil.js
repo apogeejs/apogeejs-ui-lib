@@ -14,7 +14,7 @@ export {uiutil as default};
  * The domain map is optional. It is to allow for different resource folders, such as for different repos.
 */
 uiutil.initResourcePath = function(resourceInfo) {
-    if(resourceInfo instanceof String) {
+    if(typeof resourceInfo == "string") {
         resourceInfo = {
             defaultResourcePath: resourceInfo
         }   

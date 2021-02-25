@@ -1,16 +1,36 @@
 {
     "repoName": "apogeejs-ui-lib",
 
-    "makeEsModule": true,
-    "esModuleFileName": "apogeeUiLib.js",
-    "esFilesToCopyUrls": [
-        "/apogeejs-view-lib/versionInfo.json"
-    ],
-    "esExternalLibs": [
-        "/apogeejs-base-lib/src/apogeeBaseLib.js",
-        "/apogeejs-util-lib/src/apogeeUtilLib.js"
-    ],
-    "esExternalLibRemapping": {},
-
-    "makeNpmModule": false
+    "esModule": {
+        "taskList": [
+            {
+                "type": "copyFileList",
+                "srcFileUrlList": [
+                    "/apogeejs-ui-lib/versionInfo.json"
+                ]
+            },
+            {
+                "type": "copyFileList",
+                "srcFileUrlList": [
+                    "/apogeejs-ui-lib/resources/**/*"
+                ],
+                "childFolder": "resources"
+            },
+            {
+                "type": "copyFileList",
+                "srcFileUrlList": [
+                    "/apogeejs-ui-lib/style/**/*"
+                ],
+                "childFolder": "style"
+            },
+            {
+                "type": "packageLib",
+                "esModuleFileName": "apogeeUiLib.js",
+                "externalLibs": [
+                    "/apogeejs-base-lib/src/apogeeBaseLib.js",
+                    "/apogeejs-util-lib/src/apogeeUtilLib.js"
+                ]
+            }
+        ]
+    }
 }
