@@ -1,6 +1,5 @@
 {
     "version": "2.0.0-p1",
     "isProductionRelease": false,
-    "buildInfoUrl": "/apogeejs-ui-lib/buildInfo.json", 
-    "pathMapping": {}
+    "buildInfoUrl": "/apogeejs-ui-lib/buildInfo.json"
 }
