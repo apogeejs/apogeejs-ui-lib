@@ -1,0 +1,18 @@
+{
+    "DEV_RELEASE": true,
+    "name": "apogeejs-ui-lib",
+    "version": "[RELEASE_VERSION]",
+    "description": "This library provides some user interface objects.",
+    "homepage": "https://www.apogeejs.com",
+    "license": "MIT",
+    "author": "Dave Sutter",
+    "main": "./src/apogeejs-ui-lib.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sutter-dave/apogeejs-ui-lib.git"
+    },
+    "dependencies": {
+        "apogeejs-util-lib": "[APOGEE_UTIL_DEP_VERSION]",
+        "apogeejs-base-lib": "[APOGEE_BASE_DEP_VERSION]"
+    }
+}
