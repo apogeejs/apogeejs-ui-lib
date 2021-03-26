@@ -16,7 +16,7 @@ export default class ErrorElement extends ConfigurableElement {
         try {
             initData = elementInitData ? JSON.stringify(elementInitData,null,"\t") : NO_INIT_DATA_MSG;
         }
-        catch {
+        catch(error) {
             initData = NO_INIT_DATA_MSG;
         }
 
