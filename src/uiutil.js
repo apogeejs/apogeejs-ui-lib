@@ -29,7 +29,7 @@ uiutil.getResourcePath = function(relativePath,domain) {
     if((domain)&&(uiutil.RESOURCE_INFO.domainMap !== undefined)) {
         basePath = uiutil.RESOURCE_INFO.domainMap[domain];     
     }
-    else {
+    if(basePath === undefined) {
         basePath = uiutil.RESOURCE_INFO.defaultResourcePath;
     }
     return basePath + relativePath;
