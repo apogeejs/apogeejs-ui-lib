@@ -67,7 +67,7 @@ export default class ConfigurablePanel {
             }
         }
         catch(error) {
-            var errorMsg = "Error in panel: " + error.toString();
+            var errorMsg = "Error in panel: " + error.message ? error.message : error ? error.toString() : "Unknown";
             if(error.stack) console.error(error.stack);
             
             //display an error layout

@@ -127,7 +127,7 @@ export default class ConfigurableElement {
                 this._addSelector(this.selectorConfig);
             }
             catch(error) {
-                let errorMsg = "Error calling selector: " + error.toString();
+                let errorMsg = "Error calling selector: " + error.message ? error.message : error ? error.toString() : "Unknown";
                 console.error(errorMsg);
                 if(error.stack) console.error(error.stack);
                 this.setElementErrorMsg(errorMsg)
@@ -406,7 +406,7 @@ export default class ConfigurableElement {
             onValueChange();
         }
         catch(error) {
-            let errorMsg = "Error calling selector: " + error.toString();
+            let errorMsg = "Error calling selector: " + error.message ? error.message : error ? error.toString() : "Unknown";
             console.error(errorMsg);
             if(error.stack) console.error(error.stack);
             this.setElementErrorMsg(errorMsg);
@@ -420,7 +420,7 @@ export default class ConfigurableElement {
                 this.dependentCallbacks.forEach( onValueChange => onValueChange() );
             }
             catch(error) {
-                let errorMsg = "Error calling selector: " + error.toString();
+                let errorMsg = "Error calling selector: " + error.message ? error.message : error ? error.toString() : "Unknown";
                 console.error(errorMsg);
                 if(error.stack) console.error(error.stack);
                 this.setElementErrorMsg(errorMsg)
