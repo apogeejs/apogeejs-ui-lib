@@ -1,6 +1,8 @@
 import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
+import ConfigurableFormMaker from  "/apogeejs-ui-lib/src/configurablepanel/ConfigurableFormMaker.js";
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 import ErrorElement from "/apogeejs-ui-lib/src/configurablepanel/elements/ErrorElement.js";
+
 
 /** This is a panel with forma elements that can be configured using a javascript object.
  * 
@@ -245,26 +247,6 @@ export default class ConfigurablePanel {
         this.elementObjects.forEach(elementObject => elementObject.populateSelectors());
     }
 
-    //---------------------
-    // static methods
-    //---------------------
-    
-    /** This method is used to register configurable elements with the panel */
-    static addConfigurableElement(constructorFunction) {
-        var type = constructorFunction.TYPE_NAME;
-        ConfigurablePanel.elementMap[type] = constructorFunction;
-    }
-    
-    /** This method can be used to generate an error message layout. */
-    static getErrorMessageLayoutInfo(errorMsg) {
-        var layout = [];
-        var entry = {};
-        entry.type = "htmlDisplay";
-        entry.html = "<em style='color:red'>" + errorMsg + "</em>";
-        layout.push(entry);
-        return {"layout":layout, "isErrorLayout": true};
-    }
-
     //=================================
     // Private methods
     //=================================
@@ -311,6 +293,35 @@ export default class ConfigurablePanel {
         this.elementObjects.push(configurableElement);
     }
 
+    //=================================
+    // Static Public Methods
+    //=================================
+
+    /** This method can be used to generate an error message layout. */
+    static getErrorMessageLayoutInfo(errorMsg) {
+        var layout = [];
+        var entry = {};
+        entry.type = "htmlDisplay";
+        entry.html = "<em style='color:red'>" + errorMsg + "</em>";
+        layout.push(entry);
+        return {"layout":layout, "isErrorLayout": true};
+    }
+
+    //=================================
+    // Element Management (Public and private)
+    //=================================
+    
+    /** This method is used to register configurable elements with the panel */
+    static addConfigurableElement(elementClass) {
+        var type = elementClass.TYPE_NAME;
+        ConfigurablePanel.elementMap[type] = elementClass;
+    }
+
+    static removeConfigurableElement(elementClass) {
+        var type = elementClass.TYPE_NAME;
+        delete ConfigurablePanel.elementMap[type];
+    }
+
     static instantiateConfigurableType(form,elementInitData) {
         var type = elementInitData.type;
         if(!type) {
@@ -323,6 +334,37 @@ export default class ConfigurablePanel {
         }
 
         return new constructor(form,elementInitData);
+    }
+
+    //=================================
+    // Form Maker (Public and private)
+    //=================================
+    
+    static initMaker() {
+        if(!ConfigurablePanel.configurableFormMaker) {
+            ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker();
+        }
+        ConfigurablePanel.configurableFormMaker.initFormMaker(ConfigurablePanel.elementMap);
+    }
+
+    static getFormMakerLayout() {
+        if(ConfigurablePanel.configurableFormMaker) {
+            return ConfigurablePanel.configurableFormMaker.getFormMakerLayout();
+        }
+        else {
+            //return error for layout
+            getErrorMessageLayoutInfo("Form maker has not been initialized!");
+        }
+    }
+
+    static getGeneratedFormLayout(generatorFormResult) {
+        if(ConfigurablePanel.configurableFormMaker) {
+            return ConfigurablePanel.configurableFormMaker.getOutputFormLayout(generatorFormResult)
+        }
+        else {
+            //return error for layout
+            getErrorMessageLayoutInfo("Generated layout not available. Form maker has not been initialized!");
+        }
     }
 }
 
@@ -347,5 +389,7 @@ ConfigurablePanel.EMPTY_LAYOUT = {
     layout: []
 }
 
+//form generator
+ConfigurablePanel.configurableFormMaker = null;
 
 

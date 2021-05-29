@@ -91,3 +91,50 @@ export default class SliderElement extends ConfigurableElement {
 
 SliderElement.TYPE_NAME = "slider";
 
+SliderElement.FORM_INFO = {
+	"type": "slider",
+	"label": "Slider",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textField",
+					"label": "Min: ",
+					"key": "min"
+				},
+				{
+					"type": "textField",
+					"label": "Max: ",
+					"key": "max"
+				},
+				{
+					"type": "textField",
+					"label": "Step: ",
+					"key": "step"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"valueJson",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
+SliderElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if((formResult.customLayout)&&(isFinite(formResult.customLayout.min))) {
+        elementConfig.min = parseFloat(formResult.customLayout.min);
+    }
+    if((formResult.customLayout)&&(isFinite(formResult.customLayout.max))) {
+        elementConfig.max = parseFloat(formResult.customLayout.max);
+    }
+    if((formResult.customLayout)&&(isFinite(formResult.customLayout.step))) {
+        elementConfig.step = parseFloat(formResult.customLayout.step);
+    }   
+}

@@ -81,3 +81,16 @@ export default class CheckboxElement extends ConfigurableElement {
 
 CheckboxElement.TYPE_NAME = "checkbox";
 
+CheckboxElement.FORM_INFO = {
+	"type": "checkbox",
+	"label": "Checkbox",
+	"makerFlags": [
+		"hasLabel",
+		"valueBoolean",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+

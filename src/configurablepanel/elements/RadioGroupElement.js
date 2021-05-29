@@ -172,3 +172,35 @@ function getRandomString() {
     return Math.random().toString(36).substring(2, 15);
 }
 
+RadioGroupElement.FORM_INFO = {
+	"type": "radioButtonGroup",
+	"label": "Radio Button Group",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "checkbox",
+					"label": "Vertical: ",
+					"key": "vertical"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"hasEntries",
+		"valueStringOrJson",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
+RadioGroupElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if((formResult.customLayout)&&(formResult.customLayout.vertical)) {
+        elementConfig.vertical = true;
+    }    
+}

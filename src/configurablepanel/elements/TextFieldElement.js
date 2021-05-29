@@ -80,3 +80,45 @@ export default class TextFieldElement extends ConfigurableElement {
 }
 
 TextFieldElement.TYPE_NAME = "textField";
+
+TextFieldElement.FORM_INFO = {
+	"type": "textField",
+	"label": "Text Field",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textField",
+					"label": "Size in pixels: ",
+					"key": "size",
+					"hint": "optional"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"valueString",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
+TextFieldElement.makerCustomProcessing = function(formResult,elementConfig) {
+    let customLayoutResult = formResult.customLayout;
+    if(customLayoutResult) {
+        if(customLayoutResult.size) {
+            try {
+                elementConfig.size = parseInt(customLayoutResult.size);
+            }
+            catch(error) {
+                throw Error("Invalid text field size: " + customLayoutResult.size);
+            }
+        }
+    }
+}
+

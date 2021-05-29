@@ -20,6 +20,33 @@ export default class HTMLDisplayElement extends ConfigurableElement {
 
 HTMLDisplayElement.TYPE_NAME = "htmlDisplay";
 
+HTMLDisplayElement.FORM_INFO = {
+	"type": "htmlDisplay",
+	"label": "HTML Display",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textarea",
+					"label": "HTML: ",
+					"key": "html"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasSelector"
+	]
+}
+
+HTMLDisplayElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if((formResult.customLayout)&&(formResult.customLayout.html)) {
+        elementConfig.html = formResult.customLayout.html;
+    }    
+}
+
 
 
 

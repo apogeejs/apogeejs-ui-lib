@@ -38,3 +38,30 @@ export default class SpacerElement extends ConfigurableElement {
 SpacerElement.DEFAULT_HEIGHT = 15;
 
 SpacerElement.TYPE_NAME = "spacer";
+
+SpacerElement.FORM_INFO = {
+	"type": "spacer",
+	"label": "Spacer Element",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textField",
+					"label": "Height: ",
+					"key": "height"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasSelector"
+	]
+}
+
+SpacerElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if((formResult.customLayout)&&(formResult.customLayout.height)) {
+        elementConfig.height = formResult.customLayout.height;
+    }    
+}

@@ -50,4 +50,12 @@ export default class HoriontalLayout extends ConfigurableLayoutContainer {
 
 HoriontalLayout.TYPE_NAME = "horizontalLayout";
 
+HoriontalLayout.FORM_INFO = {
+	"type": "horizontalLayout",
+	"label": "Horizontal Layout",
+	"makerFlags": [
+		"hasChildren"
+	]
+}
+
 

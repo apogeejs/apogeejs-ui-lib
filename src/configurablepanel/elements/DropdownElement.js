@@ -108,4 +108,18 @@ export default class DropdownElement extends ConfigurableElement {
 
 DropdownElement.TYPE_NAME = "dropdown";
 
+DropdownElement.FORM_INFO = {
+	"type": "dropdown",
+	"label": "Dropdown",
+	"makerFlags": [
+		"hasLabel",
+		"hasEntries",
+		"valueStringOrJson",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
 

@@ -85,3 +85,58 @@ export default class TextareaElement extends ConfigurableElement {
 }
 
 TextareaElement.TYPE_NAME = "textarea";
+
+TextareaElement.FORM_INFO = {
+	"type": "textarea",
+	"label": "Text Area",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textField",
+					"label": "Number Columns: ",
+					"key": "cols",
+					"hint": "optional"
+				},
+				{
+					"type": "textField",
+					"label": "Number Rows: ",
+					"key": "rows",
+					"hint": "optional"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"valueString",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
+TextareaElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if(formResult.customLayout) {
+        if(formResult.customLayout.cols) {
+            try {
+                elementConfig.cols = parseInt(formResult.customLayout.cols);
+            }
+            catch(error) {
+                throw Error("Invalid text field size: " + formResult.customLayout.cols);
+            }
+        }
+        if(formResult.customLayout.rows) {
+            try {
+                elementConfig = parseInt(formResult.customLayout.rows);
+            }
+            catch(error) {
+                throw Error("Invalid text field size: " + formResult.customLayout.rows);
+            }
+        }
+    }
+
+}

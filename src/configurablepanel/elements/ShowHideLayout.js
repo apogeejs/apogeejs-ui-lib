@@ -119,4 +119,61 @@ export default class ShowHideLayout extends ConfigurableLayoutContainer {
 
 ShowHideLayout.TYPE_NAME = "showHideLayout";
 
+ShowHideLayout.FORM_INFO = {
+	"type": "showHideLayout",
+	"label": "Show Hide Layout",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "textField",
+					"label": "Text: ",
+					"key": "heading"
+				},
+				{
+					"type": "dropdown",
+					"label": "Level: ",
+					"entries": [
+						[
+							"Default",
+							"default"
+						],
+						1,
+						2,
+						3,
+						4,
+						5,
+						6
+					],
+					"value": "default",
+					"key": "level"
+				},
+				{
+					"type": "checkbox",
+					"label": "Initially Closed: ",
+					"key": "closed"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasChildren"
+	]
+}
 
+ShowHideLayout.makerCustomProcessing = function(formResult,elementConfig) {
+    let customLayoutResult = formResult.customLayout;
+    if(customLayoutResult) {
+        if(customLayoutResult.heading) {
+            elementConfig.heading = customLayoutResult.heading;
+        }
+        if((customLayoutResult.level)&&(customLayoutResult.level != "default")) {
+            elementConfig.level = customLayoutResult.level;
+        }
+        if(customLayoutResult.closed) {
+            elementConfig.closed = customLayoutResult.closed;
+        }
+    }
+}

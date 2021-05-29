@@ -40,3 +40,6 @@ ConfigurablePanel.addConfigurableElement(TextFieldElement);
 
 ConfigurablePanel.addConfigurableElement(HorizontalLayout);
 ConfigurablePanel.addConfigurableElement(ShowHideLayout);
+
+//initialize the form maker
+ConfigurablePanel.initMaker();

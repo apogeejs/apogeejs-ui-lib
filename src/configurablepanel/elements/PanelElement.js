@@ -103,5 +103,21 @@ export default class PanelElement extends ConfigurableElement {
 
 PanelElement.TYPE_NAME = "panel";
 
+PanelElement.FORM_INFO = {
+	"type": "panel",
+	"label": "Panel",
+	"makerFlags": [
+		"hasChildren",
+		"hasKey",
+        "hasSelector"
+	]
+}
 
+PanelElement.TOP_LEVEL_FORM_INFO = {
+	"type": "panel",
+	"label": "Form Designer",
+	"makerFlags": [
+		"hasChildren"
+	]
+}
 

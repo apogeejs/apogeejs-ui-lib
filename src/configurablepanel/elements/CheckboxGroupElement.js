@@ -159,4 +159,31 @@ export default class CheckboxGroupElement extends ConfigurableElement {
 
 CheckboxGroupElement.TYPE_NAME = "checkboxGroup";
 
+CheckboxGroupElement.FORM_INFO = {
+	"type": "checkboxGroup",
+	"label": "Checkbox Group",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "checkbox",
+					"label": "Vertical: ",
+					"key": "vertical"
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"hasEntries",
+		"valueStringOrJson",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
 

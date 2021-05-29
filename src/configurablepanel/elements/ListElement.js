@@ -395,5 +395,58 @@ export default class ListElement extends ConfigurableElement {
 
 ListElement.TYPE_NAME = "list";
 
+ListElement.FORM_INFO = {
+	"type": "list",
+	"label": "List",
+	"customLayout": [
+		{
+			"entries": [
+				[
+					"Single Entry Type",
+					"single"
+				],
+				[
+					"Multi Entry Type",
+					"multi"
+				]
+			],
+			"key": "listType",
+			"label": "List Type: ",
+			"selector": {
+				"parentKey": "entryTypes",
+                "actionFunction": (childElement,entryTypeElement) => {
+                    let entryTypes = entryTypeElement.getValue();
+                    if((entryTypes)&&(entryTypes.length > 1)) {
+                        if(childElement.getState() != "disabled") {
+                            childElement.setValue("multi");
+                            childElement.setState("disabled");
+                        }
+                    }
+                    else {
+                        if(childElement.getState() != "normal") {
+                            childElement.setState("normal");
+                        }
+                    }
+                }
+			},
+			"type": "radioButtonGroup"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"hasList",
+		"hasKey",
+        "hasSelector"
+	]
+}
 
+ListElement.makerCustomProcessing = function(formResult,elementConfig) {
+    if(formResult.listType == "single") {
+        let entryTypes = elementConfig.entryTypes;
+        delete elementConfig.entryTypes;
+        if(entryTypes.length > 0) {
+            elementConfig.entryType = entryTypes[0];
+        }
+    }
+}
 
