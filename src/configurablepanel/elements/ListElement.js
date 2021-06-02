@@ -79,8 +79,8 @@ export default class ListElement extends ConfigurableElement {
         if(this.meta) {
             Object.assign(fullMeta,this.meta);
         }
-        //override an expression type to be "list"
-        fullMeta.expression = "array";
+        //override an parent type to be "array"
+        fullMeta.parentType = "array";
         //add the child elements
         if(this.isMultitypeList) {
             let childMeta = {};

@@ -42,8 +42,8 @@ export default class PanelElement extends ConfigurableElement {
         if(this.meta) {
             Object.assign(fullMeta,this.meta);
         }
-        //override an expression type to be "object"
-        fullMeta.expression = "object";
+        //override an parent type to be "object"
+        fullMeta.parentType = "object";
         //add the child elements
         fullMeta.childMeta = this.panel.getMeta();
         return fullMeta;

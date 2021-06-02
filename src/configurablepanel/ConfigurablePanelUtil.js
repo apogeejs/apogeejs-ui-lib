@@ -20,6 +20,31 @@ function _loadEntry(assigneeName,value,containerValue,meta,functionLines) {
         return false;
     }
 
+    //handle parent elements
+    if((meta)&&(meta.parentType)) {
+
+        if(meta.parentType == "object") {
+            //this is an object containing a possible expression
+            functionLines.push(assigneeName + "= {};");
+            _loadPanelLines(assigneeName,value,meta.childMeta,functionLines);
+            //for now we always add the base object, even if empty
+            return true;
+        }
+        else if(meta.parentType == "array") {
+            //this is an array containing a possible expression
+            functionLines.push(assigneeName + "= []");
+            if(meta.childMeta) {
+                _loadMultiTypedArrayLines(assigneeName,value,meta.childMeta,functionLines);
+            }
+            else if(meta.entryMeta) {
+                _loadSingleTypedArrayLines(assigneeName,value,meta.entryMeta,functionLines);
+            }
+            //for now we always add the base array, even if empty
+            return true;
+        }
+        //otherwise fall through
+    }
+
     //get the expression type
     let expressionType;
     if((meta)&&(meta.expression)) {
@@ -44,25 +69,6 @@ function _loadEntry(assigneeName,value,containerValue,meta,functionLines) {
         case "simple":
             //this is an expression
             return _loadSimpleExpressionEntry(assigneeName,value,functionLines);
-            
-        case "object":
-            //this is an object containing a possible expression
-            functionLines.push(assigneeName + "= {};");
-            _loadPanelLines(assigneeName,value,meta.childMeta,functionLines);
-            //for now we always add the base object, even if empty
-            return true;
-            
-        case "array": 
-            //this is an array containing a possible expression
-            functionLines.push(assigneeName + "= []");
-            if(meta.childMeta) {
-                _loadMultiTypedArrayLines(assigneeName,value,meta.childMeta,functionLines);
-            }
-            else if(meta.entryMeta) {
-                _loadSingleTypedArrayLines(assigneeName,value,meta.entryMeta,functionLines);
-            }
-            //for now we always add the base array, even if empty
-            return true;
             
         default:
             throw new Error("Expression type not supported for " + assigneeName + ": " + expressionType);
@@ -143,7 +149,7 @@ function _loadMultiTypedArrayLines(assigneeName,value,metaMap,functionLines) {
 /** This loads a value to an assignee for a single-typed list, as part of the form result function body. */
 function _loadSingleTypedArrayLines(assigneeName,value,entryMeta,functionLines) {
     if(value === null) return false;
-    
+
     let insertIndex = 0;
     let linesAdded = false;
     value.forEach( (entryValue) => {
