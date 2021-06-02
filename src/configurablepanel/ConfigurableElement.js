@@ -11,10 +11,18 @@ export default class ConfigurableElement {
         this.form = form;
         this.state = ConfigurablePanelConstants.STATE_NORMAL;
         this.key = elementInitData.key;
+        this.excludeValue = elementInitData.excludeValue;
         this.meta = elementInitData.meta;
         this.selectorConfig = elementInitData.selector;
         this.isMultiselect = false;
         this.focusElement = null;
+
+        //legacy code-----------------
+        //Previously exclude value was included in meta
+        if((this.excludeValue === undefined)&&(this.meta !== undefined)&&(this.meta.excludeValue !== undefined)) {
+            this.excludeValue = this.meta.excludeValue;
+        }
+        //-----------------------------
 
         this.onChangeListeners = [];
         this.onInputListeners = [];
@@ -51,6 +59,13 @@ export default class ConfigurableElement {
     setValue(value) {
         this.setValueImpl(value);
         this.valueChanged(true);
+    }
+
+    /** This retrieves the excludeValue. If the element value is this, it will not be returned as part of
+     * the panel value. It is intended for things like optional values, which are omitted if they are not set
+     * away from this value. */
+    getExcludeValue() {
+        return this.excludeValue;
     }
     
     getState() {

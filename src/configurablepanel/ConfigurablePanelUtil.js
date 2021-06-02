@@ -16,9 +16,7 @@ export function getFormResultFunctionBody(formValue,formMeta) {
 
 /** This loads a value to an assignee, as part of the form result function body. */
 function _loadEntry(assigneeName,value,containerValue,meta,functionLines) {
-    if((value === undefined)||(value === null)||((meta)&&(meta.excludeValue !== undefined)&&(meta.excludeValue === value))) {
-        //value excluded
-        //handle value === undefined!!
+    if(value === undefined) {
         return false;
     }
 
@@ -91,6 +89,9 @@ function _loadSimpleValueEntry(assigneeName,value,functionLines) {
 
 /** This loads a value to an assignee for a simple expression, as part of the form result function body. */
 function _loadSimpleExpressionEntry(assigneeName,value,functionLines) {
+    //this shouldn't happen, the input should be a string
+    if(value === null) return false;
+
     let trimmedValue = value.toString().trim();
     if(trimmedValue === "") return false;
     
@@ -101,6 +102,8 @@ function _loadSimpleExpressionEntry(assigneeName,value,functionLines) {
 
 /** This loads a value to an assignee fpr a panel, as part of the form result function body. */
 function _loadPanelLines(parentObjectName,panelValue,panelMeta,functionLines) {
+    if(panelValue === null) return;
+
     for(let key in panelValue) {
         let meta = panelMeta[key];
         let value = panelValue[key];
@@ -111,15 +114,25 @@ function _loadPanelLines(parentObjectName,panelValue,panelMeta,functionLines) {
 
 /** This loads a value to an assignee for a multi-typed list, as part of the form result function body. */
 function _loadMultiTypedArrayLines(assigneeName,value,metaMap,functionLines) {
+    if(value === null) return false;
+    
     let insertIndex = 0;
     let linesAdded = false;
     value.forEach( (keyedEntry) => {
-        let key = keyedEntry.key;
+        let tempFunctionLines = [];
+        //create the keyed entry
+        let keyedEntryAssigneeName = `${assigneeName}[${insertIndex}]`;
+        tempFunctionLines.push(`${keyedEntryAssigneeName} = {}`);
+        tempFunctionLines.push(`${keyedEntryAssigneeName}.key = "${keyedEntry.key}"`);
+        let dataAssigneeName = `${keyedEntryAssigneeName}.value`;
+        tempFunctionLines.push(`${dataAssigneeName} = {}`);
+        //apply the values from the child elements
         let entryValue = keyedEntry.value;
-        let entryMeta = metaMap[key];
-        let entryAssigneeName = assigneeName + "[" + insertIndex + "]";
-        let lineAdded = _loadEntry(entryAssigneeName,entryValue,null,entryMeta,functionLines);
+        let entryMeta = metaMap[keyedEntry.key];
+        let lineAdded = _loadEntry(dataAssigneeName,entryValue,null,entryMeta,tempFunctionLines);
+        //apply all lines if applicable
         if(lineAdded) {
+            functionLines.push(...tempFunctionLines);
             insertIndex++;
             linesAdded = true;
         }
@@ -129,6 +142,8 @@ function _loadMultiTypedArrayLines(assigneeName,value,metaMap,functionLines) {
 
 /** This loads a value to an assignee for a single-typed list, as part of the form result function body. */
 function _loadSingleTypedArrayLines(assigneeName,value,entryMeta,functionLines) {
+    if(value === null) return false;
+    
     let insertIndex = 0;
     let linesAdded = false;
     value.forEach( (entryValue) => {

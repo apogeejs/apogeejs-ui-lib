@@ -34,17 +34,19 @@ export default class PanelElement extends ConfigurableElement {
         return this.panel.getValue();
     }   
 
-    /** This overrides the get meta element to calculate it on the fly. Because of list elements,
+    /** This overrides the get meta element to calculate it on the fly. Because of possible list elements,
      * the meta value depends on the content. */
     getMeta() {
+        let fullMeta = {};
+        //copy in the stored meta
         if(this.meta) {
-            let fullMeta = apogeeutil.jsonCopy(this.meta);
-            fullMeta.childMeta = this.panel.getMeta();
-            return fullMeta;
+            Object.assign(fullMeta,this.meta);
         }
-        else {
-            return null;
-        }
+        //override an expression type to be "object"
+        fullMeta.expression = "object";
+        //add the child elements
+        fullMeta.childMeta = this.panel.getMeta();
+        return fullMeta;
     }
 
     /** We override the standard giveFocus method to pass it on to a child element. */

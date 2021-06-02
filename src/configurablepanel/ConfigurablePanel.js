@@ -101,7 +101,7 @@ export default class ConfigurablePanel {
         var addValue = elementObject => {
             if(elementObject.getState() != ConfigurablePanelConstants.STATE_INACTIVE) {
                 var elementValue = elementObject.getValue();
-                if(elementValue !== undefined) {
+                if((elementValue !== undefined)&&(elementValue !== elementObject.getExcludeValue())) {
                     var key = elementObject.getKey();
                     formValue[key] = elementValue;
                 }

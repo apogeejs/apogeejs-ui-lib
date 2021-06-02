@@ -71,35 +71,37 @@ export default class ListElement extends ConfigurableElement {
     /** This overrides the get meta element to calculate it on the fly. Because of list elements,
      * the meta value depends on the content. */
     getMeta() {
+        //handle an empty list
+        if(this.listEntries.length === 0) return null;
+
+        let fullMeta = {};
+        //copy in the stored meta
         if(this.meta) {
-            //handle an empty list
-            if(this.listEntries.length === 0) return null;
-
-            let fullMeta = apogeeutil.jsonCopy(this.meta);
-            if(this.isMultiTypeList) {
-                let childMeta = {};
-                this.listEntries.forEach( listEntryInfo => {
-                    let childEntryMeta = listEntryInfo.elementObject.getMeta();
-                    let childKey = listEntryInfo.elementObject.getKey();
-                    if((childEntryMeta)&&(childKey)) {
-                        childMeta[childKey] = childEntryMeta;
-                    }
-                })
-                fullMeta.childMeta = childMeta;
-            }
-            else {
-                let listEntryInfo = this.listEntries[0];
+            Object.assign(fullMeta,this.meta);
+        }
+        //override an expression type to be "list"
+        fullMeta.expression = "array";
+        //add the child elements
+        if(this.isMultitypeList) {
+            let childMeta = {};
+            this.listEntries.forEach( listEntryInfo => {
                 let childEntryMeta = listEntryInfo.elementObject.getMeta();
-                if(childEntryMeta) {
-                    fullMeta.entryMeta = childEntryMeta;
+                let childKey = listEntryInfo.elementObject.getKey();
+                if((childEntryMeta)&&(childKey)) {
+                    childMeta[childKey] = childEntryMeta;
                 }
-            }
-
-            return fullMeta;
+            })
+            fullMeta.childMeta = childMeta;
         }
         else {
-            return null;
+            let listEntryInfo = this.listEntries[0];
+            let childEntryMeta = listEntryInfo.elementObject.getMeta();
+            if(childEntryMeta) {
+                fullMeta.entryMeta = childEntryMeta;
+            }
         }
+
+        return fullMeta;
     }
 
     /** We override the standard giveFocus method to pass it on to a child element. */
