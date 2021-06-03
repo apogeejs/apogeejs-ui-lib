@@ -1,6 +1,9 @@
-
-
-
+/**
+ * This class generates a function body from a form result, including evalutaion of
+ * an expressions included in the form. The class also includes a method to check if there
+ * are any expressions present in the form. If not, it is prefereble to use the form value rather
+ * than the compiled for function body, since they should give the same result.
+ */
 export default class FormResultFunctionGenerator {
 
     constructor() {
