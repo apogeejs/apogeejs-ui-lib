@@ -83,17 +83,20 @@ export default class ListElement extends ConfigurableElement {
         fullMeta.parentType = "array";
         //add the child elements
         if(this.isMultitypeList) {
-            let childMeta = {};
+            //here we will add a meta entry for each array entry
+            fullMeta.entryMetaArray = [];
             this.listEntries.forEach( listEntryInfo => {
+                //get the child entry but wrap it for the outer object (with the key)
                 let childEntryMeta = listEntryInfo.elementObject.getMeta();
-                let childKey = listEntryInfo.elementObject.getKey();
-                if((childEntryMeta)&&(childKey)) {
-                    childMeta[childKey] = childEntryMeta;
-                }
+                let innerEntryMeta = {value:childEntryMeta};
+                let outerEntryMeta = {};
+                outerEntryMeta.parentType = "object"
+                outerEntryMeta.childMeta = innerEntryMeta; 
+                fullMeta.entryMetaArray.push(outerEntryMeta);
             })
-            fullMeta.childMeta = childMeta;
         }
         else {
+            //here we add a single meta entry, common to all array elements
             let listEntryInfo = this.listEntries[0];
             let childEntryMeta = listEntryInfo.elementObject.getMeta();
             if(childEntryMeta) {
