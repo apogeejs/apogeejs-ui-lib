@@ -11,12 +11,18 @@ export {default as TreeControl} from "/apogeejs-ui-lib/src/treecontrol/TreeContr
 export {default as TreeEntry} from "/apogeejs-ui-lib/src/treecontrol/TreeEntry.js";
 export {default as DisplayAndHeader} from "/apogeejs-ui-lib/src/displayandheader/DisplayAndHeader.js";
 export {default as ConfigurablePanel} from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanel.js";
-export {getFormResultFunctionBody} from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelUtil.js";
+export {default as FormResultFunctionGenerator} from "/apogeejs-ui-lib/src/configurablepanel/FormResultFunctionGenerator.js";
 export {wrapWithTooltip, getHelpElement} from "/apogeejs-ui-lib/src/tooltip/tooltip.js";
-
-export {showLegacyConfigurableDialog} from "/apogeejs-ui-lib/src/dialogs/LegacyConfigurableDialog.js";
-export {showConfigurableDialog} from "/apogeejs-ui-lib/src/dialogs/ConfigurableDialog.js";
-export {showSimpleActionDialog} from "/apogeejs-ui-lib/src/dialogs/SimpleActionDialog.js";
 
 //this loads the standard configurable panel elements
 import "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelInit.js";
+
+//legacy exports ============================
+//these are deprecated interfaces. provided for back compatibility
+export {showLegacyConfigurableDialog} from "/apogeejs-ui-lib/src/dialogs/LegacyConfigurableDialog.js";
+export {showConfigurableDialog} from "/apogeejs-ui-lib/src/dialogs/ConfigurableDialog.js";
+export {showSimpleActionDialog} from "/apogeejs-ui-lib/src/dialogs/SimpleActionDialog.js";
+export {getFormResultFunctionBody} from "/apogeejs-ui-lib/src/configurablepanel/FormResultFunctionGenerator.js";
+//end legacy exports
+//============================================
+
