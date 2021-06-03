@@ -5,7 +5,7 @@ export default class FormResultFunctionGenerator {
 
     constructor() {
         this.functionLines = [];
-        this.hasExpression = false;
+        this.hasExpressions = false;
     }
 
     setInput(formValue,formMeta) {
@@ -18,8 +18,8 @@ export default class FormResultFunctionGenerator {
         return this.functionLines.join("\n");
     }
 
-    getHasExpression() {
-        return this.hasExpression;
+    getHasExpressions() {
+        return this.hasExpressions;
     }
 
     //=============================
@@ -27,7 +27,7 @@ export default class FormResultFunctionGenerator {
     //=============================
 
     _resetFunctionBody() {
-        this.hasExpression = false;
+        this.hasExpressions = false;
         this.functionLines = [];
     }
 
@@ -126,7 +126,7 @@ export default class FormResultFunctionGenerator {
         let line = assigneeName + " = " + trimmedValue;
         this._appendLine(line);
         //flag this function body as having an expression
-        this.hasExpression = true;
+        this.hasExpressions = true;
         return true;
     }
 
