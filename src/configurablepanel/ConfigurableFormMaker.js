@@ -1,12 +1,14 @@
 
 export default class ConfigurableFormMaker {
     constructor() {
-        this.formMakerLayout = null
+        this.formMakerLayout = null;
+        this.compiledFormMakerLayout = null;
         this.formCustomProcessingMap = null;
     }   
 
     initFormMaker(configurableElementClassMap) {
-        this.formMakerLayout = this.createMakerFormLayout(configurableElementClassMap);
+        this.formMakerLayout = this.createMakerFormLayout(configurableElementClassMap,false);
+        this.compiledFormMakerLayout = this.createMakerFormLayout(configurableElementClassMap,true);
 
         let customProcessingMap = {};
         for(let elementType in configurableElementClassMap) {
@@ -18,8 +20,8 @@ export default class ConfigurableFormMaker {
         this.formCustomProcessingMap = customProcessingMap;
     }
 
-    getFormMakerLayout() {
-        return this.formMakerLayout;
+    getFormMakerLayout(allowCompiled) {
+        return allowCompiled ? this.compiledFormMakerLayout : this.formMakerLayout;
     }
 
     getOutputFormLayout(formResult) {
@@ -30,8 +32,7 @@ export default class ConfigurableFormMaker {
     // Internal Functions
     //==============================
 
-
-    createMakerFormLayout(configurableElementClassMap) {
+    createMakerFormLayout(configurableElementClassMap,allowCompiled) {
 
         //first create the javascript objects for the child panel and list
         //these will be embedded in the top level layout
@@ -59,13 +60,20 @@ export default class ConfigurableFormMaker {
         ];
             
         for(let elementType in configurableElementClassMap) {
-            let elementInfo = configurableElementClassMap[elementType].FORM_INFO;
+            let elementClass = configurableElementClassMap[elementType];
+            let elementInfo;
+            if((allowCompiled)&&(elementClass.COMPILED_FORM_INFO)) {
+                elementInfo = elementClass.COMPILED_FORM_INFO;
+            }
+            else {
+                elementInfo = elementClass.FORM_INFO;
+            }
             
             if(elementInfo) {
                 //update the panel element list
                 let panelLayoutListEntry = {};
                 panelLayoutListEntry.label = elementInfo.label;
-                let panelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout);
+                let panelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
                 panelLayoutListEntry.layout = {
                     type: "panel",
                     formData: panelLayout,
@@ -76,7 +84,7 @@ export default class ConfigurableFormMaker {
                 //update the list element list
                 let listLayoutListEntry = {};
                 listLayoutListEntry.label = elementInfo.label;
-                let listPanelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout);
+                let listPanelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
                 let modifiedListPanelLayout = listPanelLayout.concat(listLayoutAddition);
                 listLayoutListEntry.layout = {
                     type: "panel",
@@ -89,10 +97,10 @@ export default class ConfigurableFormMaker {
 
         //create the layout for the top level panel
         let topLevelFormInfo = configurableElementClassMap["panel"].TOP_LEVEL_FORM_INFO;
-        return this.getMakerLayout(topLevelFormInfo,childPanelElementsLayout,childListElementsLayout);
+        return this.getMakerLayout(topLevelFormInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
     }
 
-    getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout) {
+    getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled) {
         let layout = [];
 
         //type field - always
@@ -115,7 +123,12 @@ export default class ConfigurableFormMaker {
 
         //entries
         if(elementInfo.makerFlags.indexOf("hasEntries") >= 0) {
-            layout.push(ENTRIES_ELEMENTS_CONFIG);
+            if(allowCompiled) {
+                layout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
+            }
+            else {
+                layout.push(ENTRIES_ELEMENTS_CONFIG);
+            }
         }
 
         //element specific layout
@@ -133,22 +146,42 @@ export default class ConfigurableFormMaker {
 
         //value - string format
         if(elementInfo.makerFlags.indexOf("valueString") >= 0) {
-            layout.push(VALUE_STRING_ELEMENT_CONFIG);
+            if(allowCompiled) {
+                layout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
+            }
+            else {
+                layout.push(VALUE_STRING_ELEMENT_CONFIG);
+            }
         }
 
         //value - json literal format
         if(elementInfo.makerFlags.indexOf("valueJson") >= 0) {
-            layout.push(VALUE_JSON_ELEMENT_CONFIG);
+            if(allowCompiled) {
+                layout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
+            }
+            else {
+                layout.push(VALUE_JSON_ELEMENT_CONFIG);
+            }
         }
 
         //value - string or json literal format
         if(elementInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
-            layout.push(VALUE_EITHER_ELEMENT_CONFIG);
+            if(allowCompiled) {
+                layout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
+            }
+            else {
+                layout.push(VALUE_EITHER_ELEMENT_CONFIG);
+            }
         }
 
         //value - boolean format
         if(elementInfo.makerFlags.indexOf("valueBoolean") >= 0) {
-            layout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
+            if(allowCompiled) {
+                layout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
+            }
+            else {
+                layout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
+            }
         }
 
         //key
@@ -206,36 +239,42 @@ export default class ConfigurableFormMaker {
         //---------------
         //process entries
         //---------------
+        if(elementFormResult.entriesStringified !== undefined) {
+            if(elementFormResult.entriesStringified !== "") {
+                elementConfig.entries = JSON.parse(elementFormResult.entriesStringified);
+            }
+        }
+        
         if(elementFormResult.entries !== undefined) {
             if(elementFormResult.entries !== "") {
-                elementConfig.entries = JSON.parse(elementFormResult.entries);
+                elementConfig.entries = elementFormResult.entries;
             }
         }
 
         //----------
         //process values
         //----------
-        if(elementFormResult.valueJson !== undefined) {
-            if(elementFormResult.valueJson !== "") {
-                elementConfig.value = JSON.parse(elementFormResult.valueJson);
+        if(elementFormResult.valueStringified !== undefined) {
+            if(elementFormResult.valueStringified !== "") {
+                elementConfig.value = JSON.parse(elementFormResult.valueStringified);
             }
         }
-        if(elementFormResult.valueString !== undefined) {
-            if(elementFormResult.valueString !== "") {
-                elementConfig.value = elementFormResult.valueString;
+        if(elementFormResult.value !== undefined) {
+            if(elementFormResult.value !== "") {
+                elementConfig.value = elementFormResult.value;
             }
         }
-        if(elementFormResult.valueStringOrJson !== undefined) {
-            if(elementFormResult.valueType == "string") {
-                elementConfig.value = elementFormResult.valueStringOrJson;
-            }
-            else if(elementFormResult.valueType == "json") {
-                elementConfig.value = JSON.parse(elementFormResult.valueStringOrJson);
+        if(elementFormResult.valueAlt !== undefined) {
+            if(elementFormResult.valueAlt !== "") {
+                elementConfig.value = elementFormResult.valueAlt;
             }
         }
-        if(elementFormResult.valueBoolean !== undefined) {
-            if(elementFormResult.valueBoolean !== null) {
-                elementConfig.value = elementFormResult.valueBoolean;
+        if(elementFormResult.valueMixed !== undefined) {
+            if((elementFormResult.valueType == "value")||(elementFormResult.valueType == "reference")) {
+                elementConfig.value = elementFormResult.valueMixed;
+            }
+            else if(elementFormResult.valueType == "stringified") {
+                elementConfig.value = JSON.parse(elementFormResult.valueMixed);
             }
         }
 
@@ -366,22 +405,103 @@ const LABEL_ELEMENT_CONFIG = {
 const ENTRIES_ELEMENTS_CONFIG = {
 	type: "textField",
 	label: "Entries: ",
-	key: "entries",
+	key: "entriesStringified",
 	hint: "optional, array of values (use quotes on strings)"
 }
+
+const COMPILED_ENTRIES_ELEMENTS_CONFIG = {
+    type: "horizontalLayout",
+    formData: [
+        {
+            type: "textarea",
+            label: "Entries: ",
+            rows: 3,
+            cols: 75,
+            key: "entriesStringified",
+            selector: {
+                parentKey: "entriesType",
+                parentValue: "value"
+            }
+        },
+        {
+            type: "textField",
+            label: "Entries: ",
+            size: 50,
+            key: "entries",
+            selector: {
+                parentKey: "entriesType",
+                parentValue: "reference"
+            },
+            meta: {
+                expression: "simple",
+            }
+        },
+        {
+            type: "radioButtonGroup",
+            entries: [["Value","value"],["Reference","reference"]],
+            value: "value",
+            key: "entriesType"
+        }
+    ]
+}
+
 
 const VALUE_STRING_ELEMENT_CONFIG = {
 	type: "textField",
 	label: "Initial Value: ",
-	key: "valueString",
+	key: "value",
 	hint: "optional, text"
+}
+
+const COMPILED_VALUE_STRING_ELEMENT_CONFIG = {
+    type: "horizontalLayout",
+    formData: [
+        {
+        	type: "textField",
+        	label: "Initial Value: ",
+        	key: "value",
+        	hint: "optional, text",
+        	meta: {
+                expression: "choice",
+                expressionChoiceKey: "valueType",
+            }
+        },
+        {
+            type: "radioButtonGroup",
+            entries: [["Value","value"],["Reference","simple"]],
+            value: "value",
+            key: "valueType"
+        }
+    ]
 }
 			
 const VALUE_JSON_ELEMENT_CONFIG = {
 	type: "textField",
 	label: "Initial Value: ",
-	key: "valueJson",
+	key: "valueStringified",
 	hint: "optional, JSON literal - Number, boolean, quoted string, JSON array..."
+}
+			
+const COMPILED_VALUE_JSON_ELEMENT_CONFIG = {
+    type: "horizontalLayout",
+    formData: [
+        {
+        	type: "textField",
+        	label: "Initial Value: ",
+        	key: "valueStringified",
+        	hint: "optional, JSON literal - Number, boolean, quoted string, JSON array...",
+        	meta: {
+                expression: "choice",
+                expressionChoiceKey: "valueType",
+            }
+        },
+        {
+            type: "radioButtonGroup",
+            entries: [["Value","value"],["Reference","simple"]],
+            value: "value",
+            key: "valueType"
+        }
+    ]
 }
 			
 const VALUE_EITHER_ELEMENT_CONFIG = {
@@ -390,12 +510,39 @@ const VALUE_EITHER_ELEMENT_CONFIG = {
 		{
 			type: "textField",
 			label: "Initial Value: ",
-			key: "valueStringOrJson"
+			key: "valueMixed"
 		},
 		{
 			type: "radioButtonGroup",
 			label: "Value Type: ",
-			entries: [["String","string"],["JSON literal - Number, boolean, quoted string, JSON array...","json"]],
+			entries: [["String","value"],["JSON literal - Number, boolean, quoted string, JSON array...","stringified"]],
+			key: "valueType",
+			hint: "optional"
+		}
+	]
+}
+
+const COMPILED_VALUE_EITHER_ELEMENT_CONFIG = {
+	type: "horizontalLayout",
+	formData: [
+		{
+			type: "textField",
+			label: "Initial Value: ",
+			key: "valueMixed",
+			meta: {
+                expression: "choice",
+                expressionChoiceKey: "valueType",
+                expressionChoiceMap: {
+                    "value": "value",
+                    "stringified": "value",
+                    "reference": "simple"
+                }
+            }
+		},
+		{
+			type: "radioButtonGroup",
+			label: "Value Type: ",
+			entries: [["String","value"],["JSON literal - Number, boolean, quoted string, JSON array...","stringified"],["Reference","reference"]],
 			key: "valueType",
 			hint: "optional"
 		}
@@ -406,8 +553,44 @@ const VALUE_BOOLEAN_ELEMENT_CONFIG = {
 	type: "radioButtonGroup",
 	label: "Initial Value: ",
 	entries: [["true",true],["false",false],["Not Set",null]],
-	key: "booleanValue",
+	key: "value",
     hint: "optional"
+}
+
+const COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG = {
+    type: "horizontalLayout",
+    formData: [
+        {
+            type: "radioButtonGroup",
+        	label: "Initial Value: ",
+        	entries: [["true",true],["false",false],["Not Set",null]],
+        	key: "value",
+            hint: "optional",
+            selector: {
+                parentKey: "entriesType",
+                parentValue: "value"
+            }
+        },
+        {
+            type: "textField",
+            label: "Initial Value: ",
+            size: 50,
+            key: "valueAlt",
+            selector: {
+                parentKey: "entriesType",
+                parentValue: "reference"
+            },
+            meta: {
+                expression: "simple",
+            }
+        },
+        {
+            type: "radioButtonGroup",
+            entries: [["Value","value"],["Reference","reference"]],
+            value: "value",
+            key: "entriesType"
+        }
+    ]
 }
 
 const KEY_ELEMENT_CONFIG = {

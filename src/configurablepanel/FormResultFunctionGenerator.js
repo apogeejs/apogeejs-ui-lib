@@ -105,7 +105,14 @@ export default class FormResultFunctionGenerator {
         if(!containerValue) throw new Expression("Error in choice expression for " + assigneeName + ". Not in a valid parent object.")
         if(!meta.expressionChoiceKey) throw new Error("Meta expressionChoiceKey entry missing for " + assigneeName);
 
-        let expressionType = containerValue[meta.expressionChoiceKey];
+        let expressionType;
+        if(meta.expressionChoiceMap) {
+            let expressionInput = containerValue[meta.expressionChoiceKey];
+            expressionType = meta.expressionChoiceMap[expressionInput];
+        }
+        else {
+            expressionType = containerValue[meta.expressionChoiceKey];
+        }
         if(!expressionType) throw new Error("Expression choice not found for key for " + assigneeName + ": " + meta.expressionChoiceKey);
         
         return expressionType;

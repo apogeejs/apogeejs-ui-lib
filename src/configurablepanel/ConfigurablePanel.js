@@ -347,9 +347,9 @@ export default class ConfigurablePanel {
         ConfigurablePanel.configurableFormMaker.initFormMaker(ConfigurablePanel.elementMap);
     }
 
-    static getFormMakerLayout() {
+    static getFormMakerLayout(allowCompiled) {
         if(ConfigurablePanel.configurableFormMaker) {
-            return ConfigurablePanel.configurableFormMaker.getFormMakerLayout();
+            return ConfigurablePanel.configurableFormMaker.getFormMakerLayout(allowCompiled);
         }
         else {
             //return error for layout

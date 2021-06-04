@@ -127,14 +127,137 @@ SliderElement.FORM_INFO = {
 	]
 }
 
+SliderElement.COMPILED_FORM_INFO = {
+	"type": "slider",
+	"label": "Slider",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+					"type": "horizontalLayout",
+					"formData": [
+						{
+							"type": "textField",
+							"label": "Min: ",
+							"key": "min",
+							"meta": {
+								"expression": "choice",
+								"expressionChoiceKey": "minType"
+							}
+						},
+						{
+							"type": "radioButtonGroup",
+							"entries": [
+								[
+									"Value",
+									"value"
+								],
+								[
+									"Reference",
+									"simple"
+								]
+							],
+							"value": "value",
+							"key": "minType"
+						}
+					]
+				},
+				{
+					"type": "horizontalLayout",
+					"formData": [
+						{
+							"type": "textField",
+							"label": "Max: ",
+							"key": "max",
+							"meta": {
+								"expression": "choice",
+								"expressionChoiceKey": "maxType"
+							}
+						},
+						{
+							"type": "radioButtonGroup",
+							"entries": [
+								[
+									"Value",
+									"value"
+								],
+								[
+									"Reference",
+									"simple"
+								]
+							],
+							"value": "value",
+							"key": "maxType"
+						}
+					]
+				},
+				{
+					"type": "horizontalLayout",
+					"formData": [
+						{
+							"type": "textField",
+							"label": "Step: ",
+							"key": "step",
+							"meta": {
+								"expression": "choice",
+								"expressionChoiceKey": "stepType"
+							}
+						},
+						{
+							"type": "radioButtonGroup",
+							"entries": [
+								[
+									"Value",
+									"value"
+								],
+								[
+									"Reference",
+									"simple"
+								]
+							],
+							"value": "value",
+							"key": "stepType"
+						}
+					]
+				}
+			],
+			"key": "customLayout"
+		}
+	],
+	"makerFlags": [
+		"hasLabel",
+		"valueJson",
+		"hasKey",
+		"hasHint",
+		"hasHelp",
+		"hasSelector"
+	]
+}
+
 SliderElement.makerCustomProcessing = function(formResult,elementConfig) {
-    if((formResult.customLayout)&&(isFinite(formResult.customLayout.min))) {
-        elementConfig.min = parseFloat(formResult.customLayout.min);
+    if((formResult.customLayout)&&(formResult.customLayout.min)) {
+        if(formResult.customLayout.minType == "simple") {
+            elementConfig.min = formResult.customLayout.min;
+        }
+        else {
+            elementConfig.min = parseFloat(formResult.customLayout.min);
+        }
     }
-    if((formResult.customLayout)&&(isFinite(formResult.customLayout.max))) {
-        elementConfig.max = parseFloat(formResult.customLayout.max);
+    if((formResult.customLayout)&&(formResult.customLayout.max)) {
+        if(formResult.customLayout.maxType == "simple") {
+            elementConfig.max = formResult.customLayout.max;
+        }
+        else {
+            elementConfig.max = parseFloat(formResult.customLayout.max);
+        }
     }
-    if((formResult.customLayout)&&(isFinite(formResult.customLayout.step))) {
-        elementConfig.step = parseFloat(formResult.customLayout.step);
+    if((formResult.customLayout)&&(formResult.customLayout.step)) {
+        if(formResult.customLayout.stepType == "simple") {
+            elementConfig.step = formResult.customLayout.step;
+        }
+        else {
+            elementConfig.step = parseFloat(formResult.customLayout.step);
+        }
     }   
 }
