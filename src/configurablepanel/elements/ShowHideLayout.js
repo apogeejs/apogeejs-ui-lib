@@ -177,3 +177,6 @@ ShowHideLayout.makerCustomProcessing = function(formResult,elementConfig) {
         }
     }
 }
+
+//collection specific form maker elements
+ShowHideLayout.IS_COLLECTION = true;

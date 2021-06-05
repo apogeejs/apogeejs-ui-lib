@@ -455,3 +455,20 @@ ListElement.makerCustomProcessing = function(formResult,elementConfig) {
     }
 }
 
+//collection specific form maker elements
+ListElement.IS_COLLECTION = true;
+ListElement.CHILD_LIST_LABEL = "List Entry Elements: ";
+ListElement.getChildElementLayout = baseChildLayout => baseChildLayout.concat(CHILD_LAYOUT_ADDITION);
+
+let CHILD_LAYOUT_ADDITION = [
+    {
+        type: "htmlDisplay",
+        html: "<hr style='border-top: 1px dashed darkgray'>"
+    },
+    {
+        type: "textField",
+        label: "List Entry Button Text: ",
+        key: "_listButtonText"
+    }
+];
+

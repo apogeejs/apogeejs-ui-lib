@@ -34,32 +34,13 @@ export default class ConfigurableFormMaker {
 
     createMakerFormLayout(configurableElementClassMap,allowCompiled) {
 
-        //first create the javascript objects for the child panel and list
-        //these will be embedded in the top level layout
-        let childPanelElementsLayout = {
-            type: "list",
-            key: "formData",
-            entryTypes: []
-        }
-        let childListElementsLayout = {
-            type: "list",
-            label: "List Entry Elements: ",
-            key: "entryTypes",
-            entryTypes: []
-        }
-        let listLayoutAddition = [
-            {
-                type: "htmlDisplay",
-                html: "<hr style='border-top: 1px dashed darkgray'>"
-            },
-            {
-                type: "textField",
-                label: "List Entry Button Text: ",
-                key: "_listButtonText"
-            }
-        ];
-            
+        let elementInfoList = [];
+        let collectionInfoList = [];
+        let panelChildListLayout;
+        
+        //create all the element layouts
         for(let elementType in configurableElementClassMap) {
+            //get the element info
             let elementClass = configurableElementClassMap[elementType];
             let elementInfo;
             if((allowCompiled)&&(elementClass.COMPILED_FORM_INFO)) {
@@ -70,37 +51,72 @@ export default class ConfigurableFormMaker {
             }
             
             if(elementInfo) {
-                //update the panel element list
-                let panelLayoutListEntry = {};
-                panelLayoutListEntry.label = elementInfo.label;
-                let panelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
-                panelLayoutListEntry.layout = {
-                    type: "panel",
-                    formData: panelLayout,
-                    key: elementInfo.type
+                //set up for any collection elements
+                let childListLayout;
+                if(elementClass.IS_COLLECTION) {
+                    childListLayout = {}
+                    childListLayout.type = "list";
+                    childListLayout.key = "entryTypes";
+                    if(elementClass.CHILD_LIST_LABEL) {
+                        childListLayout.label = elementClass.CHILD_LIST_LABEL;
+                    }
+                    collectionInfoList.push({
+                        layout: childListLayout,
+                        childElementLayoutConverter: elementClass.getChildElementLayout
+                    });
                 }
-                childPanelElementsLayout.entryTypes.push(panelLayoutListEntry);
-            
-                //update the list element list
-                let listLayoutListEntry = {};
-                listLayoutListEntry.label = elementInfo.label;
-                let listPanelLayout = this.getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
-                let modifiedListPanelLayout = listPanelLayout.concat(listLayoutAddition);
-                listLayoutListEntry.layout = {
-                    type: "panel",
-                    formData: modifiedListPanelLayout,
-                    key: elementInfo.type
+
+                //construct the layout for this form element
+                let elementLayout = this.getMakerLayout(elementInfo,allowCompiled,childListLayout);
+                elementInfoList.push({
+                    label: elementInfo.label,
+                    key: elementInfo.type,  //I MIGHT NEED TO CHANGE THIS!!!
+                    layout: elementLayout
+                });
+
+                if(elementType == "panel") {
+                    panelChildListLayout = childListLayout;
                 }
-                childListElementsLayout.entryTypes.push(listLayoutListEntry);
             }
         }
 
+        //for each collection, complete its list of child elements, converting the layouts as needed
+        collectionInfoList.forEach(collectionInfo => {
+            let childInfoList;
+            if(collectionInfo.childElementLayoutConverter) {
+                //run the converter on the base child element list
+                childInfoList = elementInfoList.map(elementInfo => {
+                    return {
+                        label: elementInfo.label,
+                        key: elementInfo.key,
+                        layout: collectionInfo.childElementLayoutConverter(elementInfo.layout)
+                    }
+                });
+            }
+            else {
+                //if there is not converter, just use the base child element list
+                childInfoList = elementInfoList
+            }
+
+            collectionInfo.layout.entryTypes = childInfoList.map(childInfo => {
+                return {
+                    label: childInfo.label,
+                    layout: {
+                        type: "panel",
+                        key: childInfo.key,
+                        formData: childInfo.layout
+                    }
+                }
+            })
+        })
+
         //create the layout for the top level panel
+        //for now we are assuming it uses the base element layout list
         let topLevelFormInfo = configurableElementClassMap["panel"].TOP_LEVEL_FORM_INFO;
-        return this.getMakerLayout(topLevelFormInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled);
+        return this.getMakerLayout(topLevelFormInfo,allowCompiled,panelChildListLayout);
     }
 
-    getMakerLayout(elementInfo,childPanelElementsLayout,childListElementsLayout,allowCompiled) {
+    getMakerLayout(elementInfo,allowCompiled,childListLayout) {
         let layout = [];
 
         //type field - always
@@ -136,12 +152,9 @@ export default class ConfigurableFormMaker {
             layout.push(...elementInfo.customLayout);
         }
 
-        //children - this makes a form data entry or, formatted for a panel or list
-        if(elementInfo.makerFlags.indexOf("hasChildren") >= 0) {
-            layout.push(childPanelElementsLayout);
-        }
-        else if(elementInfo.makerFlags.indexOf("hasList") >= 0) {
-            layout.push(childListElementsLayout)
+        //children - add the child list if we have one for this element (for collections only)
+        if(childListLayout) {
+            layout.push(childListLayout);
         }
 
         //value - string format

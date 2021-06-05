@@ -58,4 +58,7 @@ HoriontalLayout.FORM_INFO = {
 	]
 }
 
+//collection specific form maker elements
+HoriontalLayout.IS_COLLECTION = true;
+
 
