@@ -125,5 +125,6 @@ PanelElement.TOP_LEVEL_FORM_INFO = {
 
 //collection specific form maker elements
 PanelElement.IS_COLLECTION = true;
+PanelElement.COLLECTION_LIST_KEY = "formData";
 
 

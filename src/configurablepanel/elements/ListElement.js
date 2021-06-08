@@ -457,6 +457,7 @@ ListElement.makerCustomProcessing = function(formResult,elementConfig) {
 
 //collection specific form maker elements
 ListElement.IS_COLLECTION = true;
+ListElement.COLLECTION_LIST_KEY = "entryTypes";
 ListElement.CHILD_LIST_LABEL = "List Entry Elements: ";
 ListElement.getChildElementLayout = baseChildLayout => baseChildLayout.concat(CHILD_LAYOUT_ADDITION);
 

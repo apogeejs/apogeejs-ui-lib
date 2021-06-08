@@ -180,3 +180,4 @@ ShowHideLayout.makerCustomProcessing = function(formResult,elementConfig) {
 
 //collection specific form maker elements
 ShowHideLayout.IS_COLLECTION = true;
+ShowHideLayout.COLLECTION_LIST_KEY = "formData";

@@ -32,15 +32,29 @@ export default class ConfigurableFormMaker {
     // Internal Functions
     //==============================
 
+    /** This function configures a layout for the form maker, depending on whether expressions are allowed
+     * as inputs (allowCompiled). This value is recursive, meaning the collection layouts contain children which include
+     * themselves. As such, the value will cause a stack overflow if you try to convert it to a JSON or extended JSON. */
     createMakerFormLayout(configurableElementClassMap,allowCompiled) {
 
-        let elementInfoList = [];
-        let collectionInfoList = [];
+        //The top level of a form is a panel. It can have a number of child elements in it.
+        //These chid elements include "collections", which are elements that can have child elements,
+        //such as the panel or the list (or the layout elements).
+
+        //This is a list of info on each element, including the form maker layout of this element when it appears 
+        //in a collection, such as the panel.
+        let elementLayoutInfoList = [];
+
+        //This is a list of info for each collection object
+        let collectionLayoutInfoList = [];
+
+        //We will store this variable related to a panel since we will use it to make the layout for the top level panel.
         let panelChildListLayout;
         
-        //create all the element layouts
+        //process each configurable element (FUTURE - allow multiple form maker entries for a single element, such as 
+        //a simple list and a flexible list)
         for(let elementType in configurableElementClassMap) {
-            //get the element info
+            //get the base element info for a configurable element form entry.
             let elementClass = configurableElementClassMap[elementType];
             let elementInfo;
             if((allowCompiled)&&(elementClass.COMPILED_FORM_INFO)) {
@@ -51,54 +65,60 @@ export default class ConfigurableFormMaker {
             }
             
             if(elementInfo) {
-                //set up for any collection elements
-                let childListLayout;
+                //set up the collection elements
+                //These will include all the child elements. We need to construct the layout container and later we will populate
+                //with all the child elements once they all have been processed - after this loop.
+                let collectionChildListLayout;
                 if(elementClass.IS_COLLECTION) {
-                    childListLayout = {}
-                    childListLayout.type = "list";
-                    childListLayout.key = "entryTypes";
+                    collectionChildListLayout = {}
+                    collectionChildListLayout.type = "list";
+                    collectionChildListLayout.key = elementClass.COLLECTION_LIST_KEY;
                     if(elementClass.CHILD_LIST_LABEL) {
-                        childListLayout.label = elementClass.CHILD_LIST_LABEL;
+                        collectionChildListLayout.label = elementClass.CHILD_LIST_LABEL;
                     }
-                    collectionInfoList.push({
-                        layout: childListLayout,
+                    collectionLayoutInfoList.push({
+                        layout: collectionChildListLayout,
                         childElementLayoutConverter: elementClass.getChildElementLayout
                     });
                 }
 
-                //construct the layout for this form element
-                let elementLayout = this.getMakerLayout(elementInfo,allowCompiled,childListLayout);
-                elementInfoList.push({
+                //Here we create the layout info we need for the generic elements. 
+                //For collections we pass the layout of the list of children, which is needed to define the collection layout
+                let elementLayout = this.getMakerElementLayout(elementInfo,allowCompiled,collectionChildListLayout);
+                elementLayoutInfoList.push({
                     label: elementInfo.label,
                     key: elementInfo.type,  //I MIGHT NEED TO CHANGE THIS!!!
                     layout: elementLayout
                 });
 
+                //we save the "collectionChildListLayout" for the panel since we will use this to construct our top level panel object.
                 if(elementType == "panel") {
-                    panelChildListLayout = childListLayout;
+                    panelChildListLayout = collectionChildListLayout;
                 }
             }
         }
 
         //for each collection, complete its list of child elements, converting the layouts as needed
-        collectionInfoList.forEach(collectionInfo => {
-            let childInfoList;
-            if(collectionInfo.childElementLayoutConverter) {
+        collectionLayoutInfoList.forEach(processedCollectionInfo => {
+            let collectionChildInfoList;
+            if(processedCollectionInfo.childElementLayoutConverter) {
                 //run the converter on the base child element list
-                childInfoList = elementInfoList.map(elementInfo => {
+                //the converter here allows us to wrap or otherwise modify the child element layouts for this collection.
+                collectionChildInfoList = elementLayoutInfoList.map(elementLayoutInfo => {
                     return {
-                        label: elementInfo.label,
-                        key: elementInfo.key,
-                        layout: collectionInfo.childElementLayoutConverter(elementInfo.layout)
+                        label: elementLayoutInfo.label,
+                        key: elementLayoutInfo.key,
+                        layout: processedCollectionInfo.childElementLayoutConverter(elementLayoutInfo.layout)
                     }
                 });
             }
             else {
-                //if there is not converter, just use the base child element list
-                childInfoList = elementInfoList
+                //if there is not converter, just use the base child element layouts
+                collectionChildInfoList = elementLayoutInfoList
             }
 
-            collectionInfo.layout.entryTypes = childInfoList.map(childInfo => {
+            //complete the layout for this collection, inserting the child element layouts (they go in the "entryTypes" element)
+            processedCollectionInfo.layout.entryTypes = collectionChildInfoList.map(childInfo => {
                 return {
                     label: childInfo.label,
                     layout: {
@@ -111,12 +131,14 @@ export default class ConfigurableFormMaker {
         })
 
         //create the layout for the top level panel
-        //for now we are assuming it uses the base element layout list
+        //Here we assume the top level panel uses the same child list layout as the chidl panel element
+        //Also we assume  
         let topLevelFormInfo = configurableElementClassMap["panel"].TOP_LEVEL_FORM_INFO;
-        return this.getMakerLayout(topLevelFormInfo,allowCompiled,panelChildListLayout);
+        return this.getMakerElementLayout(topLevelFormInfo,allowCompiled,panelChildListLayout);
     }
 
-    getMakerLayout(elementInfo,allowCompiled,childListLayout) {
+    /** This method returns the form layout for this element as it will appear in the maker as a child in a collection. */
+    getMakerElementLayout(elementInfo,allowCompiled,collectionChildListLayout) {
         let layout = [];
 
         //type field - always
@@ -153,8 +175,8 @@ export default class ConfigurableFormMaker {
         }
 
         //children - add the child list if we have one for this element (for collections only)
-        if(childListLayout) {
-            layout.push(childListLayout);
+        if(collectionChildListLayout) {
+            layout.push(collectionChildListLayout);
         }
 
         //value - string format
@@ -300,7 +322,7 @@ export default class ConfigurableFormMaker {
         if(elementFormResult.entryTypes) {
             elementConfig.entryTypes = elementFormResult.entryTypes.map(elementInfo => {
                 let entryType = {};
-                if(elementInfo.value.label) entryType.label = elementInfo.value._listButtonText;
+                if(elementInfo.value._listButtonText) entryType.label = elementInfo.value._listButtonText;
                 entryType.layout = this.getElementLayout(elementInfo.value);
                 return entryType;
             });
