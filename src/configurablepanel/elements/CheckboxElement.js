@@ -81,7 +81,11 @@ export default class CheckboxElement extends ConfigurableElement {
 
 CheckboxElement.TYPE_NAME = "checkbox";
 
-CheckboxElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "checkbox",
 	"label": "Checkbox",
 	"makerFlags": [
@@ -92,5 +96,9 @@ CheckboxElement.FORM_INFO = {
 		"hasHelp",
 		"hasSelector"
 	]
+}
+
+CheckboxElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO
 }
 

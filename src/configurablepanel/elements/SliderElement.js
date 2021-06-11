@@ -91,7 +91,11 @@ export default class SliderElement extends ConfigurableElement {
 
 SliderElement.TYPE_NAME = "slider";
 
-SliderElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "slider",
 	"label": "Slider",
 	"customLayout": [
@@ -127,7 +131,7 @@ SliderElement.FORM_INFO = {
 	]
 }
 
-SliderElement.COMPILED_FORM_INFO = {
+const COMPILED_FORM_INFO = {
 	"type": "slider",
 	"label": "Slider",
 	"customLayout": [
@@ -235,7 +239,7 @@ SliderElement.COMPILED_FORM_INFO = {
 	]
 }
 
-SliderElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.min)) {
         if(formResult.customLayout.minType == "simple") {
             elementConfig.min = formResult.customLayout.min;
@@ -260,4 +264,11 @@ SliderElement.makerCustomProcessing = function(formResult,elementConfig) {
             elementConfig.step = parseFloat(formResult.customLayout.step);
         }
     }   
+}
+
+
+SliderElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+	compiledFormInfo: COMPILED_FORM_INFO,
+	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }

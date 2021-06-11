@@ -400,7 +400,11 @@ export default class ListElement extends ConfigurableElement {
 
 ListElement.TYPE_NAME = "list";
 
-ListElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "list",
 	"label": "List",
 	"customLayout": [
@@ -445,7 +449,7 @@ ListElement.FORM_INFO = {
 	]
 }
 
-ListElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if(formResult.listType == "single") {
         let entryTypes = elementConfig.entryTypes;
         delete elementConfig.entryTypes;
@@ -455,13 +459,8 @@ ListElement.makerCustomProcessing = function(formResult,elementConfig) {
     }
 }
 
-//collection specific form maker elements
-ListElement.IS_COLLECTION = true;
-ListElement.COLLECTION_LIST_KEY = "entryTypes";
-ListElement.CHILD_LIST_LABEL = "List Entry Elements: ";
-ListElement.getChildElementLayout = baseChildLayout => baseChildLayout.concat(CHILD_LAYOUT_ADDITION);
-
-let CHILD_LAYOUT_ADDITION = [
+const GET_CHILD_ELEMENT_FUNCTION = baseChildLayout => baseChildLayout.concat(CHILD_LAYOUT_ADDITION);
+const CHILD_LAYOUT_ADDITION = [
     {
         type: "htmlDisplay",
         html: "<hr style='border-top: 1px dashed darkgray'>"
@@ -472,4 +471,13 @@ let CHILD_LAYOUT_ADDITION = [
         key: "_listButtonText"
     }
 ];
+
+ListElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+    isCollection: true,
+    collectionListKey: "entryTypes",
+    childListLabel: "List Entry Elements: ",
+    getChildElementLayout: GET_CHILD_ELEMENT_FUNCTION 
+}
 

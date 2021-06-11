@@ -20,7 +20,11 @@ export default class HTMLDisplayElement extends ConfigurableElement {
 
 HTMLDisplayElement.TYPE_NAME = "htmlDisplay";
 
-HTMLDisplayElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "htmlDisplay",
 	"label": "HTML Display",
 	"customLayout": [
@@ -41,10 +45,15 @@ HTMLDisplayElement.FORM_INFO = {
 	]
 }
 
-HTMLDisplayElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.html)) {
         elementConfig.html = formResult.customLayout.html;
     }    
+}
+
+HTMLDisplayElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
 
 

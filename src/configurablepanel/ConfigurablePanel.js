@@ -341,10 +341,27 @@ export default class ConfigurablePanel {
     //=================================
     
     static initMaker() {
+
+        let topLevelFormInfo;
+
+        //construct the makerElementInfoMap (we will do this differently later)
+        for(let elementType in ConfigurablePanel.elementMap) {
+            let elementClass = ConfigurablePanel.elementMap[elementType];
+            let makerElementInfo = elementClass.MAKER_ELEMENT_INFO;
+            if(makerElementInfo) {
+                ConfigurablePanel.makerElementInfoMap[elementType] = makerElementInfo;
+            }
+
+            //DOH! get this in a better way
+            if(elementType == "panel") {
+                topLevelFormInfo = elementClass.TOP_LEVEL_FORM_INFO;
+            }
+        }
+
         if(!ConfigurablePanel.configurableFormMaker) {
             ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker();
         }
-        ConfigurablePanel.configurableFormMaker.initFormMaker(ConfigurablePanel.elementMap);
+        ConfigurablePanel.configurableFormMaker.initFormMaker(ConfigurablePanel.makerElementInfoMap,topLevelFormInfo);
     }
 
     static getFormMakerLayout(allowCompiled) {
@@ -370,6 +387,7 @@ export default class ConfigurablePanel {
 
 //static fields
 ConfigurablePanel.elementMap = {};
+ConfigurablePanel.makerElementInfoMap = {};
 
 ConfigurablePanel.PANEL_CLASS = "apogee_configurablePanelBody";
 ConfigurablePanel.PANEL_CLASS_FILL_PARENT = "apogee_configurablePanelBody_fillParent";

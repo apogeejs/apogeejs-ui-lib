@@ -108,7 +108,11 @@ export default class DropdownElement extends ConfigurableElement {
 
 DropdownElement.TYPE_NAME = "dropdown";
 
-DropdownElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "dropdown",
 	"label": "Dropdown",
 	"makerFlags": [
@@ -120,6 +124,10 @@ DropdownElement.FORM_INFO = {
 		"hasHelp",
 		"hasSelector"
 	]
+}
+
+DropdownElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO
 }
 
 

@@ -81,7 +81,11 @@ export default class TextFieldElement extends ConfigurableElement {
 
 TextFieldElement.TYPE_NAME = "textField";
 
-TextFieldElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "textField",
 	"label": "Text Field",
 	"customLayout": [
@@ -108,7 +112,7 @@ TextFieldElement.FORM_INFO = {
 	]
 }
 
-TextFieldElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     let customLayoutResult = formResult.customLayout;
     if(customLayoutResult) {
         if(customLayoutResult.size) {
@@ -122,3 +126,7 @@ TextFieldElement.makerCustomProcessing = function(formResult,elementConfig) {
     }
 }
 
+TextFieldElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+}

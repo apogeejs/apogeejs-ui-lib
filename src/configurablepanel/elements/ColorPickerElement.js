@@ -77,7 +77,11 @@ export default class ColorPickerElement extends ConfigurableElement {
 
 ColorPickerElement.TYPE_NAME = "colorPicker";
 
-ColorPickerElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "colorPicker",
 	"label": "Color Picker",
 	"makerFlags": [
@@ -88,5 +92,9 @@ ColorPickerElement.FORM_INFO = {
 		"hasHelp",
 		"hasSelector"
 	]
+}
+
+ColorPickerElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO
 }
 

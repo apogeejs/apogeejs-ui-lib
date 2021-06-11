@@ -39,7 +39,11 @@ SpacerElement.DEFAULT_HEIGHT = 15;
 
 SpacerElement.TYPE_NAME = "spacer";
 
-SpacerElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "spacer",
 	"label": "Spacer Element",
 	"customLayout": [
@@ -60,8 +64,14 @@ SpacerElement.FORM_INFO = {
 	]
 }
 
-SpacerElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.height)) {
         elementConfig.height = formResult.customLayout.height;
     }    
+}
+
+
+SpacerElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }

@@ -105,7 +105,11 @@ export default class PanelElement extends ConfigurableElement {
 
 PanelElement.TYPE_NAME = "panel";
 
-PanelElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "panel",
 	"label": "Panel",
 	"makerFlags": [
@@ -113,6 +117,12 @@ PanelElement.FORM_INFO = {
 		"hasKey",
         "hasSelector"
 	]
+}
+
+PanelElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    isCollection: true,
+    collectionListKey: "formData"
 }
 
 PanelElement.TOP_LEVEL_FORM_INFO = {
@@ -123,8 +133,7 @@ PanelElement.TOP_LEVEL_FORM_INFO = {
 	]
 }
 
-//collection specific form maker elements
-PanelElement.IS_COLLECTION = true;
-PanelElement.COLLECTION_LIST_KEY = "formData";
+
+
 
 

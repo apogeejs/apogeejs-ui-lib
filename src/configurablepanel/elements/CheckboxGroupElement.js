@@ -159,7 +159,11 @@ export default class CheckboxGroupElement extends ConfigurableElement {
 
 CheckboxGroupElement.TYPE_NAME = "checkboxGroup";
 
-CheckboxGroupElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "checkboxGroup",
 	"label": "Checkbox Group",
 	"customLayout": [
@@ -184,6 +188,10 @@ CheckboxGroupElement.FORM_INFO = {
 		"hasHelp",
 		"hasSelector"
 	]
+}
+
+CheckboxGroupElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO
 }
 
 

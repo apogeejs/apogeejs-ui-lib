@@ -50,7 +50,11 @@ export default class HoriontalLayout extends ConfigurableLayoutContainer {
 
 HoriontalLayout.TYPE_NAME = "horizontalLayout";
 
-HoriontalLayout.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "horizontalLayout",
 	"label": "Horizontal Layout",
 	"makerFlags": [
@@ -58,8 +62,10 @@ HoriontalLayout.FORM_INFO = {
 	]
 }
 
-//collection specific form maker elements
-HoriontalLayout.IS_COLLECTION = true;
-HoriontalLayout.COLLECTION_LIST_KEY = "formData";
+HoriontalLayout.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    isCollection: true,
+    collectionListKey: "formData",
+}
 
 

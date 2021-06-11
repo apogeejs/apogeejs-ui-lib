@@ -86,7 +86,11 @@ export default class TextareaElement extends ConfigurableElement {
 
 TextareaElement.TYPE_NAME = "textarea";
 
-TextareaElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "textarea",
 	"label": "Text Area",
 	"customLayout": [
@@ -119,7 +123,7 @@ TextareaElement.FORM_INFO = {
 	]
 }
 
-TextareaElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if(formResult.customLayout) {
         if(formResult.customLayout.cols) {
             try {
@@ -139,4 +143,10 @@ TextareaElement.makerCustomProcessing = function(formResult,elementConfig) {
         }
     }
 
+}
+
+
+TextareaElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }

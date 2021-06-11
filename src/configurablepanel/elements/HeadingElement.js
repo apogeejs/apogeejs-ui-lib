@@ -34,7 +34,11 @@ HeadingElement.DEFAULT_HEADING_LEVEL = 2;
 
 HeadingElement.TYPE_NAME = "heading";
 
-HeadingElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "heading",
 	"label": "Heading",
 	"customLayout": [
@@ -72,8 +76,7 @@ HeadingElement.FORM_INFO = {
 		"hasSelector"
 	]
 }
-
-HeadingElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     let customLayoutResult = formResult.customLayout;
     if(customLayoutResult) {
         if(customLayoutResult.text) {
@@ -83,6 +86,12 @@ HeadingElement.makerCustomProcessing = function(formResult,elementConfig) {
             elementConfig.level = customLayoutResult.level;
         }
     }    
+}
+
+
+HeadingElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
 
 

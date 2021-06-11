@@ -172,7 +172,11 @@ function getRandomString() {
     return Math.random().toString(36).substring(2, 15);
 }
 
-RadioGroupElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "radioButtonGroup",
 	"label": "Radio Button Group",
 	"customLayout": [
@@ -199,8 +203,14 @@ RadioGroupElement.FORM_INFO = {
 	]
 }
 
-RadioGroupElement.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.vertical)) {
         elementConfig.vertical = true;
     }    
+}
+
+
+RadioGroupElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }

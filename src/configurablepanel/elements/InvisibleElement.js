@@ -40,11 +40,19 @@ export default class InvisibleElement extends ConfigurableElement {
 
 InvisibleElement.TYPE_NAME = "invisible";
 
-InvisibleElement.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "invisible",
 	"label": "Invisible Element",
 	"makerFlags": [
 		"valueStringOrJson",
 		"hasKey"
 	]
+}
+
+InvisibleElement.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO
 }

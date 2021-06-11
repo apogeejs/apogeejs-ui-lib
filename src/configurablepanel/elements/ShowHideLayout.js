@@ -119,7 +119,11 @@ export default class ShowHideLayout extends ConfigurableLayoutContainer {
 
 ShowHideLayout.TYPE_NAME = "showHideLayout";
 
-ShowHideLayout.FORM_INFO = {
+//------------------------
+// Form Maker Data
+//------------------------
+
+const FORM_INFO = {
 	"type": "showHideLayout",
 	"label": "Show Hide Layout",
 	"customLayout": [
@@ -163,7 +167,7 @@ ShowHideLayout.FORM_INFO = {
 	]
 }
 
-ShowHideLayout.makerCustomProcessing = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     let customLayoutResult = formResult.customLayout;
     if(customLayoutResult) {
         if(customLayoutResult.heading) {
@@ -178,6 +182,10 @@ ShowHideLayout.makerCustomProcessing = function(formResult,elementConfig) {
     }
 }
 
-//collection specific form maker elements
-ShowHideLayout.IS_COLLECTION = true;
-ShowHideLayout.COLLECTION_LIST_KEY = "formData";
+ShowHideLayout.MAKER_ELEMENT_INFO = {
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+    isCollection: true,
+    collectionListKey: "formData"
+}
+
