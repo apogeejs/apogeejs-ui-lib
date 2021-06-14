@@ -44,6 +44,7 @@ SpacerElement.TYPE_NAME = "spacer";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicSpacer",
 	"type": "spacer",
 	"label": "Spacer Element",
 	"customLayout": [
@@ -71,7 +72,11 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
 }
 
 
-SpacerElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
+
+SpacerElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];

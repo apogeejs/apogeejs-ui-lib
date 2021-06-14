@@ -95,7 +95,8 @@ SliderElement.TYPE_NAME = "slider";
 // Form Maker Data
 //------------------------
 
-const FORM_INFO = {
+const NO_EXPRESSION_FORM_INFO = {
+	"uniqueKey": "basicSlider",
 	"type": "slider",
 	"label": "Slider",
 	"customLayout": [
@@ -131,7 +132,8 @@ const FORM_INFO = {
 	]
 }
 
-const COMPILED_FORM_INFO = {
+const EXPRESSION_FORM_INFO = {
+	"uniqueKey": "expressionSlider",
 	"type": "slider",
 	"label": "Slider",
 	"customLayout": [
@@ -267,8 +269,27 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
 }
 
 
-SliderElement.MAKER_ELEMENT_INFO = {
-    formInfo: FORM_INFO,
-	compiledFormInfo: COMPILED_FORM_INFO,
+const NO_EXPRESSION_MAKER_ELEMENT_INFO = {
+	category: "element",
+	flags : {
+		"inputExpression": [undefined,false]
+	},
+    orderKey: NO_EXPRESSION_FORM_INFO.label,
+    formInfo: NO_EXPRESSION_FORM_INFO,
 	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
+
+const EXPRESSION_MAKER_ELEMENT_INFO = {
+	category: "element",
+	flags : {
+		"inputExpression": [true]
+	},
+    orderKey: EXPRESSION_FORM_INFO.label,
+    formInfo: EXPRESSION_FORM_INFO,
+	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
+}
+
+SliderElement.MAKER_ELEMENT_ARRAY = [
+	NO_EXPRESSION_MAKER_ELEMENT_INFO,
+	EXPRESSION_MAKER_ELEMENT_INFO
+];

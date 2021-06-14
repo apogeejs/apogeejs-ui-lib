@@ -405,6 +405,7 @@ ListElement.TYPE_NAME = "list";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicList",
 	"type": "list",
 	"label": "List",
 	"customLayout": [
@@ -472,12 +473,15 @@ const CHILD_LAYOUT_ADDITION = [
     }
 ];
 
-ListElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "collection",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
-    isCollection: true,
     collectionListKey: "entryTypes",
     childListLabel: "List Entry Elements: ",
     getChildElementLayout: GET_CHILD_ELEMENT_FUNCTION 
 }
+
+ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 

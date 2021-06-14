@@ -25,6 +25,7 @@ HTMLDisplayElement.TYPE_NAME = "htmlDisplay";
 //------------------------
 
 const FORM_INFO = {
+	"uniqueKey": "basicHtmlDisplay",
 	"type": "htmlDisplay",
 	"label": "HTML Display",
 	"customLayout": [
@@ -51,10 +52,14 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     }    
 }
 
-HTMLDisplayElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+	category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
 	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
+
+HTMLDisplayElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 
 

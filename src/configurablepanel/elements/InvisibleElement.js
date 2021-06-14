@@ -45,6 +45,7 @@ InvisibleElement.TYPE_NAME = "invisible";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicInvisible",
 	"type": "invisible",
 	"label": "Invisible Element",
 	"makerFlags": [
@@ -53,6 +54,10 @@ const FORM_INFO = {
 	]
 }
 
-InvisibleElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
+
+InvisibleElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];

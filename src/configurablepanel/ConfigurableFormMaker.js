@@ -1,27 +1,27 @@
 
 export default class ConfigurableFormMaker {
-    constructor() {
-        this.formMakerLayout = null;
-        this.compiledFormMakerLayout = null;
-        this.formCustomProcessingMap = null;
-    }   
-
-    initFormMaker(makerElementInfoMap,topLevelFormInfo) {
-        this.formMakerLayout = this.createMakerFormLayout(makerElementInfoMap,false,topLevelFormInfo);
-        this.compiledFormMakerLayout = this.createMakerFormLayout(makerElementInfoMap,true,topLevelFormInfo);
+    constructor(makerElementInfoArray,topLevelFormInfo) {
+        this.cachedLayouts = {};
+        this.makerElementInfoArray = makerElementInfoArray;
+        this.topLevelFormInfo = topLevelFormInfo;
 
         let customProcessingMap = {};
-        for(let makerElementType in makerElementInfoMap) {
-            let makerElementInfo = makerElementInfoMap[makerElementType];
-            if(makerElementInfo.makerCustomProcessing) {
-                customProcessingMap[makerElementType] = makerElementInfo.makerCustomProcessing;
+        makerElementInfoArray.forEach(makerElementInfo => {
+            if((makerElementInfo.makerCustomProcessing)&&(makerElementInfo.formInfo.uniqueKey)) {
+                customProcessingMap[makerElementInfo.formInfo.uniqueKey] = makerElementInfo.makerCustomProcessing;
             }
-        }
+        })
         this.formCustomProcessingMap = customProcessingMap;
     }
 
-    getFormMakerLayout(allowCompiled) {
-        return allowCompiled ? this.compiledFormMakerLayout : this.formMakerLayout;
+    getFormMakerLayout(flags) {
+        let flagsString = this.getFlagsString(flags);
+        let layout = this.cachedLayouts[flagsString];
+        if(!layout) {
+            layout = this.createMakerFormLayout(flags);
+            this.cachedLayouts[flagsString] = layout;
+        }
+        return layout;
     }
 
     getOutputFormLayout(formResult) {
@@ -32,10 +32,34 @@ export default class ConfigurableFormMaker {
     // Internal Functions
     //==============================
 
-    /** This function configures a layout for the form maker, depending on whether expressions are allowed
-     * as inputs (allowCompiled). This value is recursive, meaning the collection layouts contain children which include
+    /** This method checks if the maker element info meets the options for the input flags. */
+    getFlagsValid(makerElementInfo,flags) {
+        if(!makerElementInfo.flags) return true;
+
+        for(let key in makerElementInfo.flags) {
+            let keyValue = makerElementInfo.flags[key];
+            let targetValue = flags[key];
+            //the key value is either a single value or an array
+            if(Array.isArray(keyValue)) {
+                //flag must equal one of the maker element values
+                if(keyValue.indexOf(targetValue < 0)) return false;
+            }
+            else {
+                //flag value must equal maker element value
+                if(keyValue != targetValue) return false;
+            }
+        }
+        return true;
+    }
+
+    getFlagsString(flags) {
+        return JSON.stringify(apogeeutil.getNormalizedObjectCopy(flags));
+    }
+
+    /** This function configures a layout for the form maker, depending on the input option flags
+     * This value is recursive, meaning the collection layouts contain children which include
      * themselves. As such, the value will cause a stack overflow if you try to convert it to a JSON or extended JSON. */
-    createMakerFormLayout(makerElementInfoMap,allowCompiled,topLevelFormInfo) {
+    createMakerFormLayout(flags) {
 
         //The top level of a form is a panel. It can have a number of child elements in it.
         //These chid elements include "collections", which are elements that can have child elements,
@@ -53,24 +77,17 @@ export default class ConfigurableFormMaker {
         
         //process each configurable element (FUTURE - allow multiple form maker entries for a single element, such as 
         //a simple list and a flexible list)
-        for(let makerElementType in makerElementInfoMap) {
-            //get the base element info for a configurable element form entry.
-            let makerElementInfo = makerElementInfoMap[makerElementType];
+        this.makerElementInfoArray.forEach(makerElementInfo => {
+            if(!makerElementInfo.formInfo) return;
 
-            let formInfo;
-            if((allowCompiled)&&(makerElementInfo.compiledFormInfo)) {
-                formInfo = makerElementInfo.compiledFormInfo;
-            }
-            else {
-                formInfo = makerElementInfo.formInfo;
-            }
-            
-            if(formInfo) {
-                //set up the collection elements
+            //filter elemenets based on flags
+            if(this.getFlagsValid(makerElementInfo,flags)) {
+
+                //set up the parent elements - collections and layouts
                 //These will include all the child elements. We need to construct the layout container and later we will populate
                 //with all the child elements once they all have been processed - after this loop.
                 let collectionChildListLayout;
-                if(makerElementInfo.isCollection) {
+                if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
                     collectionChildListLayout = {}
                     collectionChildListLayout.type = "list";
                     collectionChildListLayout.key = makerElementInfo.collectionListKey;
@@ -85,19 +102,19 @@ export default class ConfigurableFormMaker {
 
                 //Here we create the layout info we need for the generic elements. 
                 //For collections we pass the layout of the list of children, which is needed to define the collection layout
-                let elementLayout = this.getMakerElementLayout(formInfo,allowCompiled,collectionChildListLayout);
+                let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags,collectionChildListLayout);
                 elementLayoutInfoList.push({
-                    label: formInfo.label,
-                    key: formInfo.type,  //I MIGHT NEED TO CHANGE THIS!!!
+                    makerElementInfo: makerElementInfo,
                     layout: elementLayout
                 });
 
                 //we save the "collectionChildListLayout" for the panel since we will use this to construct our top level panel object.
-                if(makerElementType == "panel") {
+                //we might have to change how we do this
+                if(makerElementInfo.formInfo.type == "panel") {
                     panelChildListLayout = collectionChildListLayout;
                 }
             }
-        }
+        })
 
         //for each collection, complete its list of child elements, converting the layouts as needed
         collectionLayoutInfoList.forEach(processedCollectionInfo => {
@@ -107,8 +124,7 @@ export default class ConfigurableFormMaker {
                 //the converter here allows us to wrap or otherwise modify the child element layouts for this collection.
                 collectionChildInfoList = elementLayoutInfoList.map(elementLayoutInfo => {
                     return {
-                        label: elementLayoutInfo.label,
-                        key: elementLayoutInfo.key,
+                        makerElementInfo: elementLayoutInfo.makerElementInfo,
                         layout: processedCollectionInfo.childElementLayoutConverter(elementLayoutInfo.layout)
                     }
                 });
@@ -121,10 +137,10 @@ export default class ConfigurableFormMaker {
             //complete the layout for this collection, inserting the child element layouts (they go in the "entryTypes" element)
             processedCollectionInfo.layout.entryTypes = collectionChildInfoList.map(childInfo => {
                 return {
-                    label: childInfo.label,
+                    label: childInfo.makerElementInfo.formInfo.label,
                     layout: {
                         type: "panel",
-                        key: childInfo.key,
+                        key: childInfo.makerElementInfo.formInfo.key,
                         formData: childInfo.layout
                     }
                 }
@@ -134,12 +150,21 @@ export default class ConfigurableFormMaker {
         //create the layout for the top level panel
         //Here we assume the top level panel uses the same child list layout as the chidl panel element
         //Also we assume  
-        return this.getMakerElementLayout(topLevelFormInfo,allowCompiled,panelChildListLayout);
+        return this.getMakerElementLayout(this.topLevelFormInfo,flags,panelChildListLayout);
     }
 
     /** This method returns the form layout for this element as it will appear in the maker as a child in a collection. */
-    getMakerElementLayout(formInfo,allowCompiled,collectionChildListLayout) {
+    getMakerElementLayout(formInfo,flags,collectionChildListLayout) {
         let layout = [];
+
+        let allowInputExpresssions = flags.inputExpressions ? true : false;
+
+        //store the element tpe
+        layout.push({
+            type: "invisible",
+            value: formInfo.uniqueKey,
+            key: "uniqueKey"
+        });
 
         //type field - always
         layout.push({
@@ -161,7 +186,7 @@ export default class ConfigurableFormMaker {
 
         //entries
         if(formInfo.makerFlags.indexOf("hasEntries") >= 0) {
-            if(allowCompiled) {
+            if(allowInputExpresssions) {
                 layout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
             }
             else {
@@ -181,7 +206,7 @@ export default class ConfigurableFormMaker {
 
         //value - string format
         if(formInfo.makerFlags.indexOf("valueString") >= 0) {
-            if(allowCompiled) {
+            if(allowInputExpresssions) {
                 layout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
             }
             else {
@@ -191,7 +216,7 @@ export default class ConfigurableFormMaker {
 
         //value - json literal format
         if(formInfo.makerFlags.indexOf("valueJson") >= 0) {
-            if(allowCompiled) {
+            if(allowInputExpresssions) {
                 layout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
             }
             else {
@@ -201,7 +226,7 @@ export default class ConfigurableFormMaker {
 
         //value - string or json literal format
         if(formInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
-            if(allowCompiled) {
+            if(allowInputExpresssions) {
                 layout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
             }
             else {
@@ -211,7 +236,7 @@ export default class ConfigurableFormMaker {
 
         //value - boolean format
         if(formInfo.makerFlags.indexOf("valueBoolean") >= 0) {
-            if(allowCompiled) {
+            if(allowInputExpresssions) {
                 layout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
             }
             else {
@@ -254,7 +279,7 @@ export default class ConfigurableFormMaker {
 
     getElementLayout(elementFormResult) {
 
-        let customLayoutProcessing = this.formCustomProcessingMap[elementFormResult.type];
+        let customLayoutProcessing = this.formCustomProcessingMap[elementFormResult.uniqueKey];
 
         //make a copy - we wil modify it
         //I want to change this to just do a copy line by line

@@ -55,6 +55,7 @@ HoriontalLayout.TYPE_NAME = "horizontalLayout";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicHorizontalLayout",
 	"type": "horizontalLayout",
 	"label": "Horizontal Layout",
 	"makerFlags": [
@@ -62,10 +63,13 @@ const FORM_INFO = {
 	]
 }
 
-HoriontalLayout.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "layout",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
-    isCollection: true,
     collectionListKey: "formData",
 }
+
+HoriontalLayout.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 

@@ -124,6 +124,7 @@ ShowHideLayout.TYPE_NAME = "showHideLayout";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicShowHideLayout",
 	"type": "showHideLayout",
 	"label": "Show Hide Layout",
 	"customLayout": [
@@ -182,10 +183,13 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     }
 }
 
-ShowHideLayout.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "layout",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
-    isCollection: true,
     collectionListKey: "formData"
 }
+
+ShowHideLayout.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 

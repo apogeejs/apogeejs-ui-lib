@@ -341,32 +341,23 @@ export default class ConfigurablePanel {
     //=================================
     
     static initMaker() {
-
-        let topLevelFormInfo;
-
-        //construct the makerElementInfoMap (we will do this differently later)
+        //construct the makerElementInfoArray
+        let makerElementInfoArray = [];
         for(let elementType in ConfigurablePanel.elementMap) {
             let elementClass = ConfigurablePanel.elementMap[elementType];
-            let makerElementInfo = elementClass.MAKER_ELEMENT_INFO;
-            if(makerElementInfo) {
-                ConfigurablePanel.makerElementInfoMap[elementType] = makerElementInfo;
-            }
-
-            //DOH! get this in a better way
-            if(elementType == "panel") {
-                topLevelFormInfo = elementClass.TOP_LEVEL_FORM_INFO;
+            let classMakerElementInfoArray = elementClass.MAKER_ELEMENT_ARRAY;
+            if(classMakerElementInfoArray) {
+                makerElementInfoArray.push(...classMakerElementInfoArray);
             }
         }
+        ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker(makerElementInfoArray,ConfigurablePanel.TOP_LEVEL_FORM_INFO);
 
-        if(!ConfigurablePanel.configurableFormMaker) {
-            ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker();
-        }
-        ConfigurablePanel.configurableFormMaker.initFormMaker(ConfigurablePanel.makerElementInfoMap,topLevelFormInfo);
     }
 
-    static getFormMakerLayout(allowCompiled) {
+    static getFormMakerLayout(formMakerFlags) {
+        if(!formMakerFlags) formMakerFlags = {};
         if(ConfigurablePanel.configurableFormMaker) {
-            return ConfigurablePanel.configurableFormMaker.getFormMakerLayout(allowCompiled);
+            return ConfigurablePanel.configurableFormMaker.getFormMakerLayout(formMakerFlags);
         }
         else {
             //return error for layout
@@ -409,5 +400,16 @@ ConfigurablePanel.EMPTY_LAYOUT = {
 
 //form generator
 ConfigurablePanel.configurableFormMaker = null;
+
+//============================
+// Form Maker Data
+//============================
+ConfigurablePanel.TOP_LEVEL_FORM_INFO = {
+	"type": "panel",
+	"label": "Form Designer",
+	"makerFlags": [
+		"hasChildren"
+	]
+}
 
 

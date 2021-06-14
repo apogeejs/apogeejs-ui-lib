@@ -113,6 +113,7 @@ DropdownElement.TYPE_NAME = "dropdown";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicDropdown",
 	"type": "dropdown",
 	"label": "Dropdown",
 	"makerFlags": [
@@ -126,8 +127,12 @@ const FORM_INFO = {
 	]
 }
 
-DropdownElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
+
+DropdownElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 

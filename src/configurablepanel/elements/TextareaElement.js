@@ -91,6 +91,7 @@ TextareaElement.TYPE_NAME = "textarea";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicTextarea",
 	"type": "textarea",
 	"label": "Text Area",
 	"customLayout": [
@@ -146,7 +147,11 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
 }
 
 
-TextareaElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
+
+TextareaElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];

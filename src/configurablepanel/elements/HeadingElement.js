@@ -39,6 +39,7 @@ HeadingElement.TYPE_NAME = "heading";
 //------------------------
 
 const FORM_INFO = {
+	"uniqueKey": "basicHeading",
 	"type": "heading",
 	"label": "Heading",
 	"customLayout": [
@@ -89,10 +90,14 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
 }
 
 
-HeadingElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+	category: "element",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
 	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
+
+HeadingElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 
 

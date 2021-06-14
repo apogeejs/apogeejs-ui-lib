@@ -110,6 +110,7 @@ PanelElement.TYPE_NAME = "panel";
 //------------------------
 
 const FORM_INFO = {
+    "uniqueKey": "basicPanel",
 	"type": "panel",
 	"label": "Panel",
 	"makerFlags": [
@@ -119,19 +120,14 @@ const FORM_INFO = {
 	]
 }
 
-PanelElement.MAKER_ELEMENT_INFO = {
+const MAKER_ELEMENT_INFO = {
+    category: "collection",
+    orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
-    isCollection: true,
     collectionListKey: "formData"
 }
 
-PanelElement.TOP_LEVEL_FORM_INFO = {
-	"type": "panel",
-	"label": "Form Designer",
-	"makerFlags": [
-		"hasChildren"
-	]
-}
+PanelElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 
 
