@@ -6,11 +6,13 @@ export default class ConfigurableFormMaker {
         this.topLevelFormInfo = topLevelFormInfo;
 
         let customProcessingMap = {};
-        makerElementInfoArray.forEach(makerElementInfo => {
-            if((makerElementInfo.makerCustomProcessing)&&(makerElementInfo.formInfo.uniqueKey)) {
-                customProcessingMap[makerElementInfo.formInfo.uniqueKey] = makerElementInfo.makerCustomProcessing;
-            }
-        })
+        if(makerElementInfoArray) {
+            makerElementInfoArray.forEach(makerElementInfo => {
+                if((makerElementInfo.makerCustomProcessing)&&(makerElementInfo.formInfo.uniqueKey)) {
+                    customProcessingMap[makerElementInfo.formInfo.uniqueKey] = makerElementInfo.makerCustomProcessing;
+                }
+            })
+        }
         this.formCustomProcessingMap = customProcessingMap;
     }
 
@@ -74,204 +76,247 @@ export default class ConfigurableFormMaker {
 
         //We will store this variable related to a panel since we will use it to make the layout for the top level panel.
         let panelChildListLayout;
-        
-        //process each configurable element (FUTURE - allow multiple form maker entries for a single element, such as 
-        //a simple list and a flexible list)
-        this.makerElementInfoArray.forEach(makerElementInfo => {
-            if(!makerElementInfo.formInfo) return;
 
-            //filter elemenets based on flags
-            if(this.getFlagsValid(makerElementInfo,flags)) {
+        try {
+            
+            //process each configurable element (FUTURE - allow multiple form maker entries for a single element, such as 
+            //a simple list and a flexible list)
+            this.makerElementInfoArray.forEach(makerElementInfo => {
+                //verify some required elements
+                let missingElements = [];
+                if(!makerElementInfo) {
+                    console.error("Form designer error: Designer Element Info missing!");
+                    return;
+                }
+                if(!makerElementInfo.category) missingElements.push("category");
+                if(!makerElementInfo.formInfo) missingElements.push("formInfo");
+                if( ((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) && (!makerElementInfo.collectionListKey) ) {
+                    missingElements.push("collectionListKey");
+                }
+                if(missingElements.length > 0) {
+                    console.error("Missing required elements for form designer element: " + missingElements.join(", ") + "; " + JSON.stringify(makerElementInfo));
+                    return;
+                }   
 
-                //set up the parent elements - collections and layouts
-                //These will include all the child elements. We need to construct the layout container and later we will populate
-                //with all the child elements once they all have been processed - after this loop.
-                let collectionChildListLayout;
-                if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
-                    collectionChildListLayout = {}
-                    collectionChildListLayout.type = "list";
-                    collectionChildListLayout.key = makerElementInfo.collectionListKey;
-                    if(makerElementInfo.childListLabel) {
-                        collectionChildListLayout.label = makerElementInfo.childListLabel;
+                //filter elemenets based on flags
+                if(this.getFlagsValid(makerElementInfo,flags)) {
+
+                    //set up the parent elements - collections and layouts
+                    //These will include all the child elements. We need to construct the layout container and later we will populate
+                    //with all the child elements once they all have been processed - after this loop.
+                    let collectionChildListLayout;
+                    if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
+                        collectionChildListLayout = {}
+                        collectionChildListLayout.type = "list";
+                        collectionChildListLayout.key = makerElementInfo.collectionListKey;
+                        if(makerElementInfo.childListLabel) {
+                            collectionChildListLayout.label = makerElementInfo.childListLabel;
+                        }
+                        collectionLayoutInfoList.push({
+                            layout: collectionChildListLayout,
+                            childElementLayoutConverter: makerElementInfo.getChildElementLayout
+                        });
                     }
-                    collectionLayoutInfoList.push({
-                        layout: collectionChildListLayout,
-                        childElementLayoutConverter: makerElementInfo.getChildElementLayout
+
+                    //Here we create the layout info we need for the generic elements. 
+                    //For collections we pass the layout of the list of children, which is needed to define the collection layout
+                    let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags,collectionChildListLayout);
+                    elementLayoutInfoList.push({
+                        makerElementInfo: makerElementInfo,
+                        layout: elementLayout
                     });
-                }
 
-                //Here we create the layout info we need for the generic elements. 
-                //For collections we pass the layout of the list of children, which is needed to define the collection layout
-                let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags,collectionChildListLayout);
-                elementLayoutInfoList.push({
-                    makerElementInfo: makerElementInfo,
-                    layout: elementLayout
-                });
-
-                //we save the "collectionChildListLayout" for the panel since we will use this to construct our top level panel object.
-                //we might have to change how we do this
-                if(makerElementInfo.formInfo.type == "panel") {
-                    panelChildListLayout = collectionChildListLayout;
-                }
-            }
-        })
-
-        //for each collection, complete its list of child elements, converting the layouts as needed
-        collectionLayoutInfoList.forEach(processedCollectionInfo => {
-            let collectionChildInfoList;
-            if(processedCollectionInfo.childElementLayoutConverter) {
-                //run the converter on the base child element list
-                //the converter here allows us to wrap or otherwise modify the child element layouts for this collection.
-                collectionChildInfoList = elementLayoutInfoList.map(elementLayoutInfo => {
-                    return {
-                        makerElementInfo: elementLayoutInfo.makerElementInfo,
-                        layout: processedCollectionInfo.childElementLayoutConverter(elementLayoutInfo.layout)
-                    }
-                });
-            }
-            else {
-                //if there is not converter, just use the base child element layouts
-                collectionChildInfoList = elementLayoutInfoList
-            }
-
-            //complete the layout for this collection, inserting the child element layouts (they go in the "entryTypes" element)
-            processedCollectionInfo.layout.entryTypes = collectionChildInfoList.map(childInfo => {
-                return {
-                    label: childInfo.makerElementInfo.formInfo.label,
-                    layout: {
-                        type: "panel",
-                        key: childInfo.makerElementInfo.formInfo.key,
-                        formData: childInfo.layout
+                    //we save the "collectionChildListLayout" for the panel since we will use this to construct our top level panel object.
+                    //we might have to change how we do this
+                    if(makerElementInfo.formInfo.type == "panel") {
+                        panelChildListLayout = collectionChildListLayout;
                     }
                 }
             })
-        })
 
-        //create the layout for the top level panel
-        //Here we assume the top level panel uses the same child list layout as the chidl panel element
-        //Also we assume  
-        return this.getMakerElementLayout(this.topLevelFormInfo,flags,panelChildListLayout);
+            //for each collection, complete its list of child elements, converting the layouts as needed
+            collectionLayoutInfoList.forEach(processedCollectionInfo => {
+                let collectionChildInfoList;
+                if(processedCollectionInfo.childElementLayoutConverter) {
+                    //run the converter on the base child element list
+                    //the converter here allows us to wrap or otherwise modify the child element layouts for this collection.
+                    collectionChildInfoList = elementLayoutInfoList.map(elementLayoutInfo => {
+                        return {
+                            makerElementInfo: elementLayoutInfo.makerElementInfo,
+                            layout: processedCollectionInfo.childElementLayoutConverter(elementLayoutInfo.layout)
+                        }
+                    });
+                }
+                else {
+                    //if there is not converter, just use the base child element layouts
+                    collectionChildInfoList = elementLayoutInfoList
+                }
+
+                //complete the layout for this collection, inserting the child element layouts (they go in the "entryTypes" element)
+                processedCollectionInfo.layout.entryTypes = collectionChildInfoList.map(childInfo => {
+                    return {
+                        label: childInfo.makerElementInfo.formInfo.label,
+                        layout: {
+                            type: "panel",
+                            key: childInfo.makerElementInfo.formInfo.uniqueKey,
+                            formData: childInfo.layout
+                        }
+                    }
+                })
+            })
+
+        }
+        catch(error) {
+            if(error.stack) console.error(error.stack);
+            return [this.getErrorElementLayout("Form Designer Error: " + error.toString())];
+        }
+
+        if((panelChildListLayout)&&(this.topLevelFormInfo)) {
+            //create the layout for the top level panel
+            //Here we assume the top level panel uses the same child list layout as the chidl panel element
+            //Also we assume  
+            return this.getMakerElementLayout(this.topLevelFormInfo,flags,panelChildListLayout);
+        }
+        else {
+            return [this.getErrorElementLayout("Error loading form designer")];
+        }
+    }
+
+    /** This returns a form layout that displays an error message. */
+    getErrorElementLayout(msg) {
+        return {
+            type: "htmlDisplay",
+            html: '<span style="color: red;">' + msg + '</span>'
+        }
     }
 
     /** This method returns the form layout for this element as it will appear in the maker as a child in a collection. */
     getMakerElementLayout(formInfo,flags,collectionChildListLayout) {
         let layout = [];
 
-        let allowInputExpresssions = flags.inputExpressions ? true : false;
+        try {
 
-        //store the element tpe
-        layout.push({
-            type: "invisible",
-            value: formInfo.uniqueKey,
-            key: "uniqueKey"
-        });
+            let allowInputExpresssions = flags.inputExpressions ? true : false;
 
-        //type field - always
-        layout.push({
-            type: "invisible",
-            value: formInfo.type,
-            key: "type"
-        });
-            
-        //heading
-        layout.push({
-            type: "heading",
-            text: formInfo.label
-        });
+            //store the element tpe
+            layout.push({
+                type: "invisible",
+                value: formInfo.uniqueKey,
+                key: "uniqueKey"
+            });
 
-        //label
-        if(formInfo.makerFlags.indexOf("hasLabel") >= 0) {
-            layout.push(LABEL_ELEMENT_CONFIG);
+            //type field - always
+            layout.push({
+                type: "invisible",
+                value: formInfo.type,
+                key: "type"
+            });
+                
+            //heading
+            layout.push({
+                type: "heading",
+                text: formInfo.label
+            });
+
+            //label
+            if(formInfo.makerFlags.indexOf("hasLabel") >= 0) {
+                layout.push(LABEL_ELEMENT_CONFIG);
+            }
+
+            //entries
+            if(formInfo.makerFlags.indexOf("hasEntries") >= 0) {
+                if(allowInputExpresssions) {
+                    layout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
+                }
+                else {
+                    layout.push(ENTRIES_ELEMENTS_CONFIG);
+                }
+            }
+
+            //element specific layout
+            if(formInfo.customLayout) {
+                layout.push(...formInfo.customLayout);
+            }
+
+            //children - add the child list if we have one for this element (for collections only)
+            if(collectionChildListLayout) {
+                layout.push(collectionChildListLayout);
+            }
+
+            //value - string format
+            if(formInfo.makerFlags.indexOf("valueString") >= 0) {
+                if(allowInputExpresssions) {
+                    layout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
+                }
+                else {
+                    layout.push(VALUE_STRING_ELEMENT_CONFIG);
+                }
+            }
+
+            //value - json literal format
+            if(formInfo.makerFlags.indexOf("valueJson") >= 0) {
+                if(allowInputExpresssions) {
+                    layout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
+                }
+                else {
+                    layout.push(VALUE_JSON_ELEMENT_CONFIG);
+                }
+            }
+
+            //value - string or json literal format
+            if(formInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
+                if(allowInputExpresssions) {
+                    layout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
+                }
+                else {
+                    layout.push(VALUE_EITHER_ELEMENT_CONFIG);
+                }
+            }
+
+            //value - boolean format
+            if(formInfo.makerFlags.indexOf("valueBoolean") >= 0) {
+                if(allowInputExpresssions) {
+                    layout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
+                }
+                else {
+                    layout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
+                }
+            }
+
+            //key
+            if(formInfo.makerFlags.indexOf("hasKey") >= 0) {
+                layout.push(KEY_ELEMENT_CONFIG);
+            }
+                
+            //additional options
+            let hasHint = (formInfo.makerFlags.indexOf("hasHint") >= 0);
+            let hasHelp = (formInfo.makerFlags.indexOf("hasHelp") >= 0);
+            let hasSelector = (formInfo.makerFlags.indexOf("hasSelector") >= 0);
+
+            if((hasHint)||(hasHelp)||(hasSelector)) {
+                let additionalOptionsElement = {
+                    type: "showHideLayout",
+                    heading: "More Options",
+                    closed: true,
+                    formData: []
+                }
+                if(hasHint) {
+                    additionalOptionsElement.formData.push(HINT_ELEMENT_CONFIG);
+                }
+                if(hasHelp) {
+                    additionalOptionsElement.formData.push(HELP_ELEMENT_CONFIG);
+                }
+                if(hasSelector) {
+                    additionalOptionsElement.formData.push(...SELECTOR_ELEMENT_CONFIG_LIST);
+                }
+
+                layout.push(additionalOptionsElement);
+            }
         }
-
-        //entries
-        if(formInfo.makerFlags.indexOf("hasEntries") >= 0) {
-            if(allowInputExpresssions) {
-                layout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
-            }
-            else {
-                layout.push(ENTRIES_ELEMENTS_CONFIG);
-            }
-        }
-
-        //element specific layout
-        if(formInfo.customLayout) {
-            layout.push(...formInfo.customLayout);
-        }
-
-        //children - add the child list if we have one for this element (for collections only)
-        if(collectionChildListLayout) {
-            layout.push(collectionChildListLayout);
-        }
-
-        //value - string format
-        if(formInfo.makerFlags.indexOf("valueString") >= 0) {
-            if(allowInputExpresssions) {
-                layout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
-            }
-            else {
-                layout.push(VALUE_STRING_ELEMENT_CONFIG);
-            }
-        }
-
-        //value - json literal format
-        if(formInfo.makerFlags.indexOf("valueJson") >= 0) {
-            if(allowInputExpresssions) {
-                layout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
-            }
-            else {
-                layout.push(VALUE_JSON_ELEMENT_CONFIG);
-            }
-        }
-
-        //value - string or json literal format
-        if(formInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
-            if(allowInputExpresssions) {
-                layout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
-            }
-            else {
-                layout.push(VALUE_EITHER_ELEMENT_CONFIG);
-            }
-        }
-
-        //value - boolean format
-        if(formInfo.makerFlags.indexOf("valueBoolean") >= 0) {
-            if(allowInputExpresssions) {
-                layout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
-            }
-            else {
-                layout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
-            }
-        }
-
-        //key
-        if(formInfo.makerFlags.indexOf("hasKey") >= 0) {
-            layout.push(KEY_ELEMENT_CONFIG);
-        }
-            
-        //additional options
-        let hasHint = (formInfo.makerFlags.indexOf("hasHint") >= 0);
-        let hasHelp = (formInfo.makerFlags.indexOf("hasHelp") >= 0);
-        let hasSelector = (formInfo.makerFlags.indexOf("hasSelector") >= 0);
-
-        if((hasHint)||(hasHelp)||(hasSelector)) {
-            let additionalOptionsElement = {
-                type: "showHideLayout",
-                heading: "More Options",
-                closed: true,
-                formData: []
-            }
-            if(hasHint) {
-                additionalOptionsElement.formData.push(HINT_ELEMENT_CONFIG);
-            }
-            if(hasHelp) {
-                additionalOptionsElement.formData.push(HELP_ELEMENT_CONFIG);
-            }
-            if(hasSelector) {
-                additionalOptionsElement.formData.push(...SELECTOR_ELEMENT_CONFIG_LIST);
-            }
-
-            layout.push(additionalOptionsElement);
+        catch(error) {
+            if(error.stack) console.error(error.stack);
+            let errorLayout = this.getErrorElementLayout("Error making element: " + error.toString());
+            layout.push(errorLayout);
         }
             
         return layout;
@@ -279,176 +324,188 @@ export default class ConfigurableFormMaker {
 
     getElementLayout(elementFormResult) {
 
-        let customLayoutProcessing = this.formCustomProcessingMap[elementFormResult.uniqueKey];
+        try {
 
-        //make a copy - we wil modify it
-        //I want to change this to just do a copy line by line
-        let elementConfig = {};
+            let customLayoutProcessing = this.formCustomProcessingMap[elementFormResult.uniqueKey];
 
-        if(elementFormResult.type) {
-            if(elementFormResult.type !== "") {
-                elementConfig.type = elementFormResult.type;
-            }
-        }
-        if(elementFormResult.label) {
-            if(elementFormResult.label !== "") {
-                elementConfig.label = elementFormResult.label;
-            }
-        }
+            //make a copy - we wil modify it
+            let elementConfig = {};
 
-        //---------------
-        //process entries
-        //---------------
-        if(elementFormResult.entriesStringified !== undefined) {
-            if(elementFormResult.entriesStringified !== "") {
-                elementConfig.entries = JSON.parse(elementFormResult.entriesStringified);
+            if(elementFormResult.type) {
+                if(elementFormResult.type !== "") {
+                    elementConfig.type = elementFormResult.type;
+                }
             }
-        }
-        
-        if(elementFormResult.entries !== undefined) {
-            if(elementFormResult.entries !== "") {
-                elementConfig.entries = elementFormResult.entries;
+            if(elementFormResult.label) {
+                if(elementFormResult.label !== "") {
+                    elementConfig.label = elementFormResult.label;
+                }
             }
-        }
 
-        //----------
-        //process values
-        //----------
-        if(elementFormResult.valueStringified !== undefined) {
-            if(elementFormResult.valueStringified !== "") {
-                elementConfig.value = JSON.parse(elementFormResult.valueStringified);
-            }
-        }
-        if(elementFormResult.value !== undefined) {
-            if(elementFormResult.value !== "") {
-                elementConfig.value = elementFormResult.value;
-            }
-        }
-        if(elementFormResult.valueAlt !== undefined) {
-            if(elementFormResult.valueAlt !== "") {
-                elementConfig.value = elementFormResult.valueAlt;
-            }
-        }
-        if(elementFormResult.valueMixed !== undefined) {
-            if((elementFormResult.valueType == "value")||(elementFormResult.valueType == "reference")) {
-                elementConfig.value = elementFormResult.valueMixed;
-            }
-            else if(elementFormResult.valueType == "stringified") {
-                elementConfig.value = JSON.parse(elementFormResult.valueMixed);
-            }
-        }
-
-        //-------------------
-        //child data
-        //-------------------
-        if(elementFormResult.formData) {
-            elementConfig.formData = elementFormResult.formData.map(formInfo => this.getElementLayout(formInfo.value));
-        }
-        if(elementFormResult.entryTypes) {
-            elementConfig.entryTypes = elementFormResult.entryTypes.map(formInfo => {
-                let entryType = {};
-                if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
-                entryType.layout = this.getElementLayout(formInfo.value);
-                return entryType;
-            });
-        }
-
-        //-------------------
-        //other simple values
-        //-------------------
-        if(elementFormResult.key) {
-            if(elementFormResult.key !== "") {
-                elementConfig.key = elementFormResult.key;
-            }
-        }
-        if(elementFormResult.hint) {
-            if(elementFormResult.hint !== "") {
-                elementConfig.hint = elementFormResult.hint;
-            }
-        }
-        if(elementFormResult.help) {
-            if(elementFormResult.help !== "") {
-                elementConfig.help = elementFormResult.help;
-            }
-        }
-
-        //--------------------
-        //process the selector
-        //--------------------
-
-        if(elementFormResult.simpleSelector) {
-            let selectorInput = elementFormResult.simpleSelector;
-            let selectorOutput = {};
-            selectorOutput.parentKey = selectorInput.parentKey;
-            
-            if(selectorInput.valueType == "string") {
-                selectorOutput.parentValue = selectorInput.parentValue;
-            }
-            else if(selectorInput.valueType == "literal") {
-                selectorOutput.parentValue = JSON.parse(selectorInput.parentValue);
-            }
-            else {
-                throw new Error("Unknown selector value type: " + selectorInput.valueType);
+            //---------------
+            //process entries
+            //---------------
+            if(elementFormResult.entriesStringified !== undefined) {
+                if(elementFormResult.entriesStringified !== "") {
+                    elementConfig.entries = JSON.parse(elementFormResult.entriesStringified);
+                }
+                else {
+                    //set to an empty entry list by default
+                    elementConfig.entries = [];
+                }
             }
             
-            elementConfig.selector = selectorOutput;
-        }
-        else if(elementFormResult.advancedSelector) {
-            let selectorInput = elementConfig.advancedSelector;
-            let selectorOutput = {};
-            
-            if(selectorInput.keyType == "relative") {
+            if(elementFormResult.entries !== undefined) {
+                if(elementFormResult.entries !== "") {
+                    elementConfig.entries = elementFormResult.entries;
+                }
+                else {
+                    //set to an empty entry list by default
+                    elementConfig.entries = [];
+                }
+            }
+
+            //----------
+            //process values
+            //----------
+            if(elementFormResult.valueStringified !== undefined) {
+                if(elementFormResult.valueStringified !== "") {
+                    elementConfig.value = JSON.parse(elementFormResult.valueStringified);
+                }
+            }
+            if(elementFormResult.value !== undefined) {
+                if(elementFormResult.value !== "") {
+                    elementConfig.value = elementFormResult.value;
+                }
+            }
+            if(elementFormResult.valueAlt !== undefined) {
+                if(elementFormResult.valueAlt !== "") {
+                    elementConfig.value = elementFormResult.valueAlt;
+                }
+            }
+            if(elementFormResult.valueMixed !== undefined) {
+                if((elementFormResult.valueType == "value")||(elementFormResult.valueType == "reference")) {
+                    elementConfig.value = elementFormResult.valueMixed;
+                }
+                else if(elementFormResult.valueType == "stringified") {
+                    elementConfig.value = JSON.parse(elementFormResult.valueMixed);
+                }
+            }
+
+            //-------------------
+            //child data
+            //-------------------
+            if(elementFormResult.formData) {
+                elementConfig.formData = elementFormResult.formData.map(formInfo => this.getElementLayout(formInfo.value));
+            }
+            if(elementFormResult.entryTypes) {
+                elementConfig.entryTypes = elementFormResult.entryTypes.map(formInfo => {
+                    let entryType = {};
+                    if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
+                    entryType.layout = this.getElementLayout(formInfo.value);
+                    return entryType;
+                });
+            }
+
+            //-------------------
+            //other simple values
+            //-------------------
+            if(elementFormResult.key) {
+                if(elementFormResult.key !== "") {
+                    elementConfig.key = elementFormResult.key;
+                }
+            }
+            if(elementFormResult.hint) {
+                if(elementFormResult.hint !== "") {
+                    elementConfig.hint = elementFormResult.hint;
+                }
+            }
+            if(elementFormResult.help) {
+                if(elementFormResult.help !== "") {
+                    elementConfig.help = elementFormResult.help;
+                }
+            }
+
+            //--------------------
+            //process the selector
+            //--------------------
+
+            if(elementFormResult.simpleSelector) {
+                let selectorInput = elementFormResult.simpleSelector;
+                let selectorOutput = {};
                 selectorOutput.parentKey = selectorInput.parentKey;
-            }
-            else if(selectorInput.keyType == "absolute") {
-                selectorOutput.parentKey = JSON.parse(selectorInput.parentKey);
-            }
-            else if(selectorInput.keyType == "multi") {
-                selectorOutput.parentKeys = JSON.parse(selectorInput.parentKeys);
-            }
-            else {
-                throw new Error("Unknown selector parent key type: " + selectorInput.keyType);
-            }
-            
-            if(selectorInput.action == "custom") {
-                //create the function
-                let args = selectorInput.argList;
-                let body = selectorInput.actionFunction;
-                selectorOutput.actionFunction = new Function(args,body);
-            }
-            else {
                 
-                if(!selectorInput.valuePanel) {
-                    throw new Error("Missing values from form input!");
+                if(selectorInput.valueType == "string") {
+                    selectorOutput.parentValue = selectorInput.parentValue;
+                }
+                else if(selectorInput.valueType == "literal") {
+                    selectorOutput.parentValue = JSON.parse(selectorInput.parentValue);
+                }
+                else {
+                    throw new Error("Unknown selector value type: " + selectorInput.valueType);
                 }
                 
-                if(selectorInput.valuePanel.valueType == "string") {
-                    selectorOutput.parentValue = selectorInput.valuePanel.parentValue;
-                }
-                else if(selectorInput.valuePanel.valueType == "literal") {
-                    selectorOutput.parentValue = JSON.parse(selectorInput.valuePanel.parentValue);
-                }
-                else if(selectorInput.valuePanel.valueType == "multi") {
-                    selectorOutput.parentValues = JSON.parse(selectorInput.valuePanel.parentValues);   
-                }
-                delete selectorInput.valuePanel;
-                
-                selectorOutput.action = selectorInput.action;
+                elementConfig.selector = selectorOutput;
             }
-            
-            elementConfig.selector = selectorOutput;
+            else if(elementFormResult.advancedSelector) {
+                let selectorInput = elementConfig.advancedSelector;
+                let selectorOutput = {};
+                
+                if(selectorInput.keyType == "relative") {
+                    selectorOutput.parentKey = selectorInput.parentKey;
+                }
+                else if(selectorInput.keyType == "absolute") {
+                    selectorOutput.parentKey = JSON.parse(selectorInput.parentKey);
+                }
+                else if(selectorInput.keyType == "multi") {
+                    selectorOutput.parentKeys = JSON.parse(selectorInput.parentKeys);
+                }
+                else {
+                    throw new Error("Unknown selector parent key type: " + selectorInput.keyType);
+                }
+                
+                if(selectorInput.action == "custom") {
+                    //create the function
+                    let args = selectorInput.argList;
+                    let body = selectorInput.actionFunction;
+                    selectorOutput.actionFunction = new Function(args,body);
+                }
+                else {
+                    
+                    if(!selectorInput.valuePanel) {
+                        throw new Error("Missing values from form input!");
+                    }
+                    
+                    if(selectorInput.valuePanel.valueType == "string") {
+                        selectorOutput.parentValue = selectorInput.valuePanel.parentValue;
+                    }
+                    else if(selectorInput.valuePanel.valueType == "literal") {
+                        selectorOutput.parentValue = JSON.parse(selectorInput.valuePanel.parentValue);
+                    }
+                    else if(selectorInput.valuePanel.valueType == "multi") {
+                        selectorOutput.parentValues = JSON.parse(selectorInput.valuePanel.parentValues);   
+                    }
+                    delete selectorInput.valuePanel;
+                    
+                    selectorOutput.action = selectorInput.action;
+                }
+                
+                elementConfig.selector = selectorOutput;
+            }
+
+            //-----------------
+            //custom processing
+            //-----------------
+            if(customLayoutProcessing) {
+                customLayoutProcessing(elementFormResult,elementConfig);
+            }
+
+            return elementConfig;
         }
-
-        //-----------------
-        //custom processing
-        //-----------------
-        if(customLayoutProcessing) {
-            customLayoutProcessing(elementFormResult,elementConfig);
+        catch(error) {
+            if(error.stack) console.error(error.stack);
+            return this.getErrorElementLayout("Error making element: " + error.toString());
         }
-
-        //console.log(JSON.stringify(elementConfig,null,"\t"));
-
-        return elementConfig;
     }
 }
 
@@ -466,7 +523,7 @@ const ENTRIES_ELEMENTS_CONFIG = {
 	type: "textField",
 	label: "Entries: ",
 	key: "entriesStringified",
-	hint: "optional, array of values (use quotes on strings)"
+	hint: "required, array of values (use quotes on strings)"
 }
 
 const COMPILED_ENTRIES_ELEMENTS_CONFIG = {
@@ -478,6 +535,7 @@ const COMPILED_ENTRIES_ELEMENTS_CONFIG = {
             rows: 3,
             cols: 75,
             key: "entriesStringified",
+            hint: "required",
             selector: {
                 parentKey: "entriesType",
                 parentValue: "value"

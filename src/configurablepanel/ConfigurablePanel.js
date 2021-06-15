@@ -355,6 +355,7 @@ export default class ConfigurablePanel {
     }
 
     static getFormMakerLayout(formMakerFlags) {
+formMakerFlags = {inputExpressions:true}; 
         if(!formMakerFlags) formMakerFlags = {};
         if(ConfigurablePanel.configurableFormMaker) {
             return ConfigurablePanel.configurableFormMaker.getFormMakerLayout(formMakerFlags);

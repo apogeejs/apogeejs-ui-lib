@@ -131,6 +131,11 @@ export default class CheckboxGroupElement extends ConfigurableElement {
 
     /** This method updates the UI value for a given element. */
     setValueImpl(valueList) {
+        if(!Array.isArray(valueList)) {
+            console.error("Value for a checkbox group should be an array. Found: " + valueList);
+            return;
+        }
+
         this.checkboxList.forEach(checkbox => {
             let standinValue = checkbox.value;
             let properValue = this.valueMap[standinValue];
@@ -183,7 +188,7 @@ const FORM_INFO = {
 	"makerFlags": [
 		"hasLabel",
 		"hasEntries",
-		"valueStringOrJson",
+		"valueJson",
 		"hasKey",
 		"hasHint",
 		"hasHelp",
@@ -191,10 +196,17 @@ const FORM_INFO = {
 	]
 }
 
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
+    if((formResult.customLayout)&&(formResult.customLayout.vertical)) {
+        elementConfig.vertical = true;
+    }    
+}
+
 const MAKER_ELEMENT_INFO = {
     category: "element",
     orderKey: FORM_INFO.label,
-    formInfo: FORM_INFO
+    formInfo: FORM_INFO,
+    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
 }
 
 CheckboxGroupElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];

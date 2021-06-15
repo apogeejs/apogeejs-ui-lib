@@ -83,6 +83,9 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
         if(customLayoutResult.text) {
             elementConfig.text = customLayoutResult.text;
         }
+		else {
+			elementConfig.text = "";
+		}
         if((customLayoutResult.level)&&(customLayoutResult.level != "default")) {
             elementConfig.level = customLayoutResult.level;
         }

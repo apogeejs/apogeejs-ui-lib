@@ -49,7 +49,10 @@ const FORM_INFO = {
 const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.html)) {
         elementConfig.html = formResult.customLayout.html;
-    }    
+    }   
+	else {
+		elementConfig.html = "";
+	} 
 }
 
 const MAKER_ELEMENT_INFO = {
