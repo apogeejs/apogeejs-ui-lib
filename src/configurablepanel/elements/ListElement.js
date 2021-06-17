@@ -408,6 +408,11 @@ const FORM_INFO = {
     "uniqueKey": "basicList",
 	"type": "list",
 	"label": "List",
+    "childLayoutTemplate": {
+        "type": "list",
+        "label": "List Entry Elements: ",
+        "key": "entryTypes"
+    },
 	"customLayout": [
 		{
 			"entries": [
@@ -444,7 +449,6 @@ const FORM_INFO = {
 	],
 	"makerFlags": [
 		"hasLabel",
-		"hasList",
 		"hasKey",
         "hasSelector"
 	]
@@ -460,7 +464,6 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     }
 }
 
-const GET_CHILD_ELEMENT_FUNCTION = baseChildLayout => baseChildLayout.concat(CHILD_LAYOUT_ADDITION);
 const CHILD_LAYOUT_ADDITION = [
     {
         type: "htmlDisplay",
@@ -473,15 +476,93 @@ const CHILD_LAYOUT_ADDITION = [
     }
 ];
 
+function completeChildListLayout(parentLayout,elementLayoutInfoList) {
+    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"))
+    childLayoutEntry.entryTypes = elementLayoutInfoList
+        .filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+        .map(elementLayoutInfo => {
+            return {
+                label: elementLayoutInfo.makerElementInfo.formInfo.label,
+                layout: {
+                    type: "panel",
+                    key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
+                    formData: elementLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+                } 
+            }
+        });
+}
+
 const MAKER_ELEMENT_INFO = {
     category: "collection",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
-    collectionListKey: "entryTypes",
-    childListLabel: "List Entry Elements: ",
-    getChildElementLayout: GET_CHILD_ELEMENT_FUNCTION 
+    completeChildListLayout: completeChildListLayout
 }
 
-ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+
+////////////////////////////////////////////////////////////////////////
+
+
+// const SIMPLE_FORM_INFO = {
+//     "uniqueKey": "simpleList",
+// 	"type": "list",
+// 	"label": "Simple List",
+//     "childLayoutTemplate": {
+//         "type": "panel",
+//         "formData": [
+//             {
+//                 "type": "dropdown",
+//                 "key": "entryTypeSelection",
+//                 "label": "List Entry Definition: ",
+//             }
+//         ],
+//         "key": "entryTypeInfo"
+//     },
+// 	"makerFlags": [
+// 		"hasLabel",
+// 		"hasKey",
+//         "hasSelector"
+// 	]
+// }
+
+// function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+//     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+//     //create the selection list for the dropdown
+//     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
+//         let formInfo = childLayoutInfo.makerElementInfo.formInfo;
+//         return [formInfo.label,formInfo.uniqueKey];
+//     })
+
+//     //get the child layouts, with the selector added
+//     let childLayouts = childLayoutInfoList.map(childLayoutInfo => {
+//         let newLayout = {};
+//         newLayout.type = "panel";
+//         newLayout.formData = childLayoutInfo.elementLayout;
+//         newLayout.selector = {
+//             parentKey: "entryTypeSelection",
+//             parentValue: childLayoutInfo.makerElementInfo.formInfo.uniqueKey
+//         }
+//         newLayout.key = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
+//         return newLayout;
+//     });
+
+//     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypeInfo"));
+//     let selectEntry = childLayoutEntry.formData[0];
+//     selectEntry.entries = dropdownEntries;
+//     childLayoutEntry.formData.push(...childLayouts);
+    
+// }
+
+// const SIMPLE_MAKER_ELEMENT_INFO = {
+//     category: "collection",
+//     orderKey: SIMPLE_FORM_INFO.label,
+//     formInfo: SIMPLE_FORM_INFO,
+//     completeChildListLayout: simpleListCompleteChildListLayout
+// }
+
+////////////////////////////////////////////////////////////
+
+ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO,SIMPLE_MAKER_ELEMENT_INFO];
+
 

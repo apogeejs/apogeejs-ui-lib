@@ -64,18 +64,18 @@ export default class ConfigurableFormMaker {
     createMakerFormLayout(flags) {
 
         //The top level of a form is a panel. It can have a number of child elements in it.
-        //These chid elements include "collections", which are elements that can have child elements,
+        //These chid elements include "parents", which are elements that can have child elements,
         //such as the panel or the list (or the layout elements).
 
         //This is a list of info on each element, including the form maker layout of this element when it appears 
         //in a collection, such as the panel.
         let elementLayoutInfoList = [];
 
-        //This is a list of info for each collection object
-        let collectionLayoutInfoList = [];
+        //This is a list of info for each parent object
+        let parentLayoutInfoList = [];
 
-        //We will store this variable related to a panel since we will use it to make the layout for the top level panel.
-        let panelChildListLayout;
+        //this is the returned layout for the top level form
+        let topLevelLayout;
 
         try {
             
@@ -90,79 +90,45 @@ export default class ConfigurableFormMaker {
                 }
                 if(!makerElementInfo.category) missingElements.push("category");
                 if(!makerElementInfo.formInfo) missingElements.push("formInfo");
-                if( ((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) && (!makerElementInfo.collectionListKey) ) {
-                    missingElements.push("collectionListKey");
+                if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
+                    if(!makerElementInfo.completeChildListLayout) {
+                        missingElements.push(completeChildListLayout);
+                    }
                 }
                 if(missingElements.length > 0) {
                     console.error("Missing required elements for form designer element: " + missingElements.join(", ") + "; " + JSON.stringify(makerElementInfo));
                     return;
                 }   
 
-                //filter elemenets based on flags
+                //create the form designer element layouts - first filtering them based on flags
                 if(this.getFlagsValid(makerElementInfo,flags)) {
 
-                    //set up the parent elements - collections and layouts
-                    //These will include all the child elements. We need to construct the layout container and later we will populate
-                    //with all the child elements once they all have been processed - after this loop.
-                    let collectionChildListLayout;
-                    if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
-                        collectionChildListLayout = {}
-                        collectionChildListLayout.type = "list";
-                        collectionChildListLayout.key = makerElementInfo.collectionListKey;
-                        if(makerElementInfo.childListLabel) {
-                            collectionChildListLayout.label = makerElementInfo.childListLabel;
-                        }
-                        collectionLayoutInfoList.push({
-                            layout: collectionChildListLayout,
-                            childElementLayoutConverter: makerElementInfo.getChildElementLayout
+                    //this is the layout of an element as it appears in the form designer
+                    let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags);
+
+                    if(makerElementInfo.isTopLevelLayout) {
+                        topLevelLayout = elementLayout;
+                    }
+                    else {
+                        elementLayoutInfoList.push({
+                            makerElementInfo: makerElementInfo,
+                            elementLayout: elementLayout
                         });
                     }
 
-                    //Here we create the layout info we need for the generic elements. 
-                    //For collections we pass the layout of the list of children, which is needed to define the collection layout
-                    let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags,collectionChildListLayout);
-                    elementLayoutInfoList.push({
-                        makerElementInfo: makerElementInfo,
-                        layout: elementLayout
-                    });
-
-                    //we save the "collectionChildListLayout" for the panel since we will use this to construct our top level panel object.
-                    //we might have to change how we do this
-                    if(makerElementInfo.formInfo.type == "panel") {
-                        panelChildListLayout = collectionChildListLayout;
+                    //save any parent elements, for additional processing
+                    if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
+                        parentLayoutInfoList.push({
+                            makerElementInfo:makerElementInfo,
+                            parentLayout: elementLayout
+                        })
                     }
                 }
             })
 
             //for each collection, complete its list of child elements, converting the layouts as needed
-            collectionLayoutInfoList.forEach(processedCollectionInfo => {
-                let collectionChildInfoList;
-                if(processedCollectionInfo.childElementLayoutConverter) {
-                    //run the converter on the base child element list
-                    //the converter here allows us to wrap or otherwise modify the child element layouts for this collection.
-                    collectionChildInfoList = elementLayoutInfoList.map(elementLayoutInfo => {
-                        return {
-                            makerElementInfo: elementLayoutInfo.makerElementInfo,
-                            layout: processedCollectionInfo.childElementLayoutConverter(elementLayoutInfo.layout)
-                        }
-                    });
-                }
-                else {
-                    //if there is not converter, just use the base child element layouts
-                    collectionChildInfoList = elementLayoutInfoList
-                }
-
-                //complete the layout for this collection, inserting the child element layouts (they go in the "entryTypes" element)
-                processedCollectionInfo.layout.entryTypes = collectionChildInfoList.map(childInfo => {
-                    return {
-                        label: childInfo.makerElementInfo.formInfo.label,
-                        layout: {
-                            type: "panel",
-                            key: childInfo.makerElementInfo.formInfo.uniqueKey,
-                            formData: childInfo.layout
-                        }
-                    }
-                })
+            parentLayoutInfoList.forEach(parentLayoutInfo => {
+                parentLayoutInfo.makerElementInfo.completeChildListLayout(parentLayoutInfo.parentLayout,elementLayoutInfoList);
             })
 
         }
@@ -171,11 +137,8 @@ export default class ConfigurableFormMaker {
             return [this.getErrorElementLayout("Form Designer Error: " + error.toString())];
         }
 
-        if((panelChildListLayout)&&(this.topLevelFormInfo)) {
-            //create the layout for the top level panel
-            //Here we assume the top level panel uses the same child list layout as the chidl panel element
-            //Also we assume  
-            return this.getMakerElementLayout(this.topLevelFormInfo,flags,panelChildListLayout);
+        if(topLevelLayout) {
+            return topLevelLayout;
         }
         else {
             return [this.getErrorElementLayout("Error loading form designer")];
@@ -191,7 +154,7 @@ export default class ConfigurableFormMaker {
     }
 
     /** This method returns the form layout for this element as it will appear in the maker as a child in a collection. */
-    getMakerElementLayout(formInfo,flags,collectionChildListLayout) {
+    getMakerElementLayout(formInfo,flags) {
         let layout = [];
 
         try {
@@ -239,8 +202,8 @@ export default class ConfigurableFormMaker {
             }
 
             //children - add the child list if we have one for this element (for collections only)
-            if(collectionChildListLayout) {
-                layout.push(collectionChildListLayout);
+            if(formInfo.childLayoutTemplate) {
+                layout.push(apogeeutil.jsonCopy(formInfo.childLayoutTemplate));
             }
 
             //value - string format

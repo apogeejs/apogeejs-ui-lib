@@ -109,22 +109,48 @@ PanelElement.TYPE_NAME = "panel";
 // Form Maker Data
 //------------------------
 
+/** This is the child layout template used by the Panel Element. This will be 
+ * shared by some other elements, such as layouts and the top level panel. */
+export const BASIC_CHILD_LAYOUT_TEMPLATE = {
+    "type": "list",
+    "key": "formData"
+}
+
+/** This is the completeChildListLayout function used by the Panel Element. This will be 
+ * shared by some other elements, such as layouts and the top level panel. */
+export function basicCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+    let childLayoutEntry = parentLayout.find(layout => (layout.key == "formData"))
+    childLayoutEntry.entryTypes = elementLayoutInfoList.map(elementLayoutInfo => {
+        return {
+            label: elementLayoutInfo.makerElementInfo.formInfo.label,
+            layout: {
+                type: "panel",
+                key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
+                formData: elementLayoutInfo.elementLayout
+            }
+        }
+    });
+}
+
+
+//internal form maker data
+
 const FORM_INFO = {
     "uniqueKey": "basicPanel",
 	"type": "panel",
 	"label": "Panel",
 	"makerFlags": [
-		"hasChildren",
 		"hasKey",
         "hasSelector"
-	]
+	],
+    "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
 }
 
 const MAKER_ELEMENT_INFO = {
     category: "collection",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
-    collectionListKey: "formData"
+    completeChildListLayout: basicCompleteChildListLayout 
 }
 
 PanelElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];

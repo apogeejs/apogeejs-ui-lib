@@ -1,5 +1,6 @@
 import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
 import ConfigurableFormMaker from  "/apogeejs-ui-lib/src/configurablepanel/ConfigurableFormMaker.js";
+import {BASIC_CHILD_LAYOUT_TEMPLATE,basicCompleteChildListLayout} from "./elements/PanelElement.js"; 
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 import ErrorElement from "/apogeejs-ui-lib/src/configurablepanel/elements/ErrorElement.js";
 
@@ -341,7 +342,7 @@ export default class ConfigurablePanel {
     //=================================
     
     static initMaker() {
-        //construct the makerElementInfoArray
+        //construct the makerElementInfoArray from the element classes
         let makerElementInfoArray = [];
         for(let elementType in ConfigurablePanel.elementMap) {
             let elementClass = ConfigurablePanel.elementMap[elementType];
@@ -350,12 +351,14 @@ export default class ConfigurablePanel {
                 makerElementInfoArray.push(...classMakerElementInfoArray);
             }
         }
+        //add the top level elements from here
+        makerElementInfoArray.push(...ConfigurablePanel.MAKER_ELEMENT_ARRAY);
         ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker(makerElementInfoArray,ConfigurablePanel.TOP_LEVEL_FORM_INFO);
 
     }
 
     static getFormMakerLayout(formMakerFlags) {
-formMakerFlags = {inputExpressions:true}; 
+//formMakerFlags = {inputExpressions:true}; 
         if(!formMakerFlags) formMakerFlags = {};
         if(ConfigurablePanel.configurableFormMaker) {
             return ConfigurablePanel.configurableFormMaker.getFormMakerLayout(formMakerFlags);
@@ -405,12 +408,23 @@ ConfigurablePanel.configurableFormMaker = null;
 //============================
 // Form Maker Data
 //============================
-ConfigurablePanel.TOP_LEVEL_FORM_INFO = {
+
+const FORM_INFO = {
+    "uniqueKey": "topLevelDataPanel",
 	"type": "panel",
-	"label": "Form Designer",
-	"makerFlags": [
-		"hasChildren"
-	]
+	"label": "Panel",
+	"makerFlags": [],
+    "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
 }
+
+const MAKER_ELEMENT_INFO = {
+    category: "collection",
+    orderKey: FORM_INFO.label,
+    isTopLevelLayout: true,
+    formInfo: FORM_INFO,
+    completeChildListLayout: basicCompleteChildListLayout 
+}
+
+ConfigurablePanel.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 
 

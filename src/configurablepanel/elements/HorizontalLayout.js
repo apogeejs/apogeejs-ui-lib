@@ -1,6 +1,6 @@
 import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 import ConfigurableLayoutContainer from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableLayoutContainer.js";
-import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
+import {BASIC_CHILD_LAYOUT_TEMPLATE,basicCompleteChildListLayout} from "./PanelElement.js"; 
 
 /** This is a item that can be placed inside a panel container. In the initialization config it has child
  * configurable elements (and configurable layout containers), however any child configurable element is included as a
@@ -58,17 +58,18 @@ const FORM_INFO = {
     "uniqueKey": "basicHorizontalLayout",
 	"type": "horizontalLayout",
 	"label": "Horizontal Layout",
-	"makerFlags": [
-		"hasChildren"
-	]
+    "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE,
+	"makerFlags": []
 }
 
 const MAKER_ELEMENT_INFO = {
     category: "layout",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
-    collectionListKey: "formData",
+    completeChildListLayout: basicCompleteChildListLayout 
 }
+
+
 
 HoriontalLayout.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
 

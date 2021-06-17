@@ -1,5 +1,5 @@
-import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 import ConfigurableLayoutContainer from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableLayoutContainer.js";
+import {BASIC_CHILD_LAYOUT_TEMPLATE,basicCompleteChildListLayout} from "./PanelElement.js"; 
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is a item that can be placed inside a panel container. In the initialization config it has child
@@ -127,6 +127,7 @@ const FORM_INFO = {
     "uniqueKey": "basicShowHideLayout",
 	"type": "showHideLayout",
 	"label": "Show Hide Layout",
+    "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE,
 	"customLayout": [
 		{
 			"type": "panel",
@@ -163,9 +164,7 @@ const FORM_INFO = {
 			"key": "customLayout"
 		}
 	],
-	"makerFlags": [
-		"hasChildren"
-	]
+	"makerFlags": []
 }
 
 const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
@@ -188,7 +187,7 @@ const MAKER_ELEMENT_INFO = {
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
-    collectionListKey: "formData"
+    completeChildListLayout: basicCompleteChildListLayout
 }
 
 ShowHideLayout.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
