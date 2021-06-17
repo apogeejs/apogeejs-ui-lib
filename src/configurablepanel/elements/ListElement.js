@@ -563,6 +563,6 @@ const MAKER_ELEMENT_INFO = {
 
 ////////////////////////////////////////////////////////////
 
-ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO,SIMPLE_MAKER_ELEMENT_INFO];
+ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO/*,SIMPLE_MAKER_ELEMENT_INFO*/];
 
 
