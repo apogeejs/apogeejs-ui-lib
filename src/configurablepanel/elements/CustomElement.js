@@ -15,6 +15,8 @@ export default class CustomElement extends ConfigurableElement {
         super(form,elementInitData);
         
         elementInitData.builderFunction(this);
+
+        this._postInstantiateInit(elementInitData);
     }
 
 }
