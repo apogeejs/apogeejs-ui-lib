@@ -1,6 +1,7 @@
 import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 import ConfigurablePanel from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanel.js";
 import ConfigurablePanelConstants from "/apogeejs-ui-lib/src/configurablepanel/ConfigurablePanelConstants.js";
+import {entryTypeSelectorBuilder} from "/apogeejs-ui-lib/src/configurablepanel/customElements/entryTypeSelector.js"
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
 /** This is a list element.
@@ -454,7 +455,7 @@ const FORM_INFO = {
 	]
 }
 
-const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
+const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
     if(formResult.listType == "single") {
         let entryTypes = elementConfig.entryTypes;
         delete elementConfig.entryTypes;
@@ -462,12 +463,20 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
             elementConfig.entryType = entryTypes[0];
         }
     }
+    if(formResult.entryTypes) {
+        elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
+            let entryType = {};
+            if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
+            entryType.layout = formMaker.getElementLayout(formInfo.value);
+            return entryType;
+        });
+    }
 }
 
 const CHILD_LAYOUT_ADDITION = [
     {
         type: "htmlDisplay",
-        html: "<hr style='border-top: 1px dashed darkgray'>"
+        html: "<hr style='border-top: 1px dashed rgba(0,0,0,.4);'>"
     },
     {
         type: "textField",
@@ -504,65 +513,169 @@ const MAKER_ELEMENT_INFO = {
 ////////////////////////////////////////////////////////////////////////
 
 
-// const SIMPLE_FORM_INFO = {
-//     "uniqueKey": "simpleList",
-// 	"type": "list",
-// 	"label": "Simple List",
-//     "childLayoutTemplate": {
-//         "type": "panel",
-//         "formData": [
-//             {
-//                 "type": "dropdown",
-//                 "key": "entryTypeSelection",
-//                 "label": "List Entry Definition: ",
-//             }
-//         ],
-//         "key": "entryTypeInfo"
-//     },
-// 	"makerFlags": [
-// 		"hasLabel",
-// 		"hasKey",
-//         "hasSelector"
-// 	]
-// }
+const SIMPLE_FORM_INFO = {
+    "uniqueKey": "simpleList",
+	"type": "list",
+	"label": "Simple List",
+    "childLayoutTemplate": {
+        "type": "panel",
+        "formData": [
+            {
+                "type": "dropdown",
+                "label": "List Entry Type: ",
+                "key": "key",
+            },
+            {
+                "type": "custom",
+                "key": "value",
+                "selector": {
+                    "parentKey": "key"
+                }
+            }
+        ],
+        "key": "entryType"
+    },
+	"makerFlags": [
+		"hasLabel",
+		"hasKey",
+        "hasSelector"
+	]
+}
 
-// function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
-//     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
-//     //create the selection list for the dropdown
-//     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
-//         let formInfo = childLayoutInfo.makerElementInfo.formInfo;
-//         return [formInfo.label,formInfo.uniqueKey];
-//     })
+function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+    //create the selection list for the dropdown
+    let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
+        let formInfo = childLayoutInfo.makerElementInfo.formInfo;
+        return [formInfo.label,formInfo.uniqueKey];
+    })
 
-//     //get the child layouts, with the selector added
-//     let childLayouts = childLayoutInfoList.map(childLayoutInfo => {
-//         let newLayout = {};
-//         newLayout.type = "panel";
-//         newLayout.formData = childLayoutInfo.elementLayout;
-//         newLayout.selector = {
-//             parentKey: "entryTypeSelection",
-//             parentValue: childLayoutInfo.makerElementInfo.formInfo.uniqueKey
-//         }
-//         newLayout.key = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
-//         return newLayout;
-//     });
-
-//     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypeInfo"));
-//     let selectEntry = childLayoutEntry.formData[0];
-//     selectEntry.entries = dropdownEntries;
-//     childLayoutEntry.formData.push(...childLayouts);
+    //get the child layouts, with the selector added
+    let childLayoutMap = {};
+    childLayoutInfoList.forEach(childLayoutInfo => {
+        let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
+        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+    })
+    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryType"));
+    let selectEntry = childLayoutEntry.formData[0];
+    selectEntry.entries = dropdownEntries;
+    let entryTypeEntry = childLayoutEntry.formData[1];
+    entryTypeEntry.builderFunction = entryTypeSelectorBuilder;
+    entryTypeEntry.selector.actionFunction = (childElement,parentElement) => {
+        childElement.setChildKey(parentElement.getValue());
+    }
+    entryTypeEntry.childLayoutMap = childLayoutMap;
     
-// }
+}
 
-// const SIMPLE_MAKER_ELEMENT_INFO = {
-//     category: "collection",
-//     orderKey: SIMPLE_FORM_INFO.label,
-//     formInfo: SIMPLE_FORM_INFO,
-//     completeChildListLayout: simpleListCompleteChildListLayout
-// }
+const SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+    if(formResult.entryType) {
+        elementConfig.entryType = {};
+        if(formResult.entryType.value._listButtonText) elementConfig.entryType.label = formResult.entryType.value._listButtonText;
+        elementConfig.entryType.layout = formMaker.getElementLayout(formResult.entryType.value);
+    }
+}
+
+
+
+const SIMPLE_MAKER_ELEMENT_INFO = {
+    category: "collection",
+    orderKey: SIMPLE_FORM_INFO.label,
+    formInfo: SIMPLE_FORM_INFO,
+    completeChildListLayout: simpleListCompleteChildListLayout,
+    makerCustomProcessing: SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION
+}
 
 ////////////////////////////////////////////////////////////
 
-ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO/*,SIMPLE_MAKER_ELEMENT_INFO*/];
+////////////////////////////////////////////////////////////////////////
+
+
+const MULTI_ENTRY_FORM_INFO = {
+    "uniqueKey": "multiEntryList",
+	"type": "list",
+	"label": "Multi Entry List",
+    "childLayoutTemplate": {
+        "type": "list",
+        "entryType": {
+            "label": "List Entry Type",
+            "layout": {
+                "type": "panel",
+                "formData": [
+                    {
+                        "type": "dropdown",
+                        "label": "List Entry Type: ",
+                        "key": "key",
+                    },
+                    {
+                        "type": "custom",
+                        "key": "value",
+                        "selector": {
+                            "parentKey": "key"
+                        }
+                    },
+                ],
+                "key": "entry"
+            },
+        },
+        "key": "entryTypes"
+    },
+	"makerFlags": [
+		"hasLabel",
+		"hasKey",
+        "hasSelector"
+	]
+}
+
+function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+    //create the selection list for the dropdown
+    let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
+        let formInfo = childLayoutInfo.makerElementInfo.formInfo;
+        return [formInfo.label,formInfo.uniqueKey];
+    })
+
+    //get the child layouts, with the selector added
+    let childLayoutMap = {};
+    childLayoutInfoList.forEach(childLayoutInfo => {
+        let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
+        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+    })
+    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"));
+    let selectEntry = childLayoutEntry.entryType.layout.formData[0];
+    selectEntry.entries = dropdownEntries;
+    let entryTypeEntry = childLayoutEntry.entryType.layout.formData[1];
+    entryTypeEntry.builderFunction = entryTypeSelectorBuilder;
+    entryTypeEntry.selector.actionFunction = (childElement,parentElement) => {
+        childElement.setChildKey(parentElement.getValue());
+    }
+    entryTypeEntry.childLayoutMap = childLayoutMap;
+    
+}
+
+const MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+    if(formResult.entryTypes) {
+        elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
+            let entryType = {};
+            if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
+            entryType.layout = formMaker.getElementLayout(formInfo.value);
+            return entryType;
+        });
+    }
+}
+
+
+
+const MULTI_ENTRY_MAKER_ELEMENT_INFO = {
+    category: "collection",
+    orderKey: MULTI_ENTRY_FORM_INFO.label,
+    formInfo: MULTI_ENTRY_FORM_INFO,
+    completeChildListLayout: multiEntryListCompleteChildListLayout,
+    makerCustomProcessing: MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION
+}
+
+////////////////////////////////////////////////////////////
+
+ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO,SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_ELEMENT_INFO];
 
 

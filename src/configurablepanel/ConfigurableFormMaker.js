@@ -356,18 +356,10 @@ export default class ConfigurableFormMaker {
             }
 
             //-------------------
-            //child data
+            //child data (panel-like entries handled here)
             //-------------------
             if(elementFormResult.formData) {
                 elementConfig.formData = elementFormResult.formData.map(formInfo => this.getElementLayout(formInfo.value));
-            }
-            if(elementFormResult.entryTypes) {
-                elementConfig.entryTypes = elementFormResult.entryTypes.map(formInfo => {
-                    let entryType = {};
-                    if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
-                    entryType.layout = this.getElementLayout(formInfo.value);
-                    return entryType;
-                });
             }
 
             //-------------------
@@ -460,7 +452,7 @@ export default class ConfigurableFormMaker {
             //custom processing
             //-----------------
             if(customLayoutProcessing) {
-                customLayoutProcessing(elementFormResult,elementConfig);
+                customLayoutProcessing(elementFormResult,elementConfig,this);
             }
 
             return elementConfig;
