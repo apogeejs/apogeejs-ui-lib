@@ -1,3 +1,4 @@
+import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
 
 export default class ConfigurableFormMaker {
     constructor(makerElementInfoArray,topLevelFormInfo) {
@@ -203,7 +204,7 @@ export default class ConfigurableFormMaker {
 
             //children - add the child list if we have one for this element (for collections only)
             if(formInfo.childLayoutTemplate) {
-                layout.push(_.cloneDeep(formInfo.childLayoutTemplate));
+                layout.push(apogeeutil._.cloneDeep(formInfo.childLayoutTemplate));
             }
 
             //value - string format

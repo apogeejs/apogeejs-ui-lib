@@ -1,4 +1,3 @@
-import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
 import ConfigurableElement from "/apogeejs-ui-lib/src/configurablepanel/ConfigurableElement.js";
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
 
