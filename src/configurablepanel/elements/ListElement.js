@@ -527,9 +527,13 @@ const SIMPLE_FORM_INFO = {
             },
             {
                 "type": "custom",
+                "builderFunction": entryTypeSelectorBuilder,
                 "key": "value",
                 "selector": {
-                    "parentKey": "key"
+                    "parentKey": "key",
+                    "actionFunction": (childElement,parentElement) => {
+                        childElement.setChildKey(parentElement.getValue());
+                    }
                 }
             }
         ],
@@ -560,10 +564,6 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
     let selectEntry = childLayoutEntry.formData[0];
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.formData[1];
-    entryTypeEntry.builderFunction = entryTypeSelectorBuilder;
-    entryTypeEntry.selector.actionFunction = (childElement,parentElement) => {
-        childElement.setChildKey(parentElement.getValue());
-    }
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }
@@ -610,8 +610,12 @@ const MULTI_ENTRY_FORM_INFO = {
                     {
                         "type": "custom",
                         "key": "value",
+                        "builderFunction": entryTypeSelectorBuilder,
                         "selector": {
-                            "parentKey": "key"
+                            "parentKey": "key",
+                            "actionFunction": (childElement,parentElement) => {
+                                childElement.setChildKey(parentElement.getValue());
+                            }
                         }
                     },
                 ],
@@ -645,10 +649,6 @@ function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoLis
     let selectEntry = childLayoutEntry.entryType.layout.formData[0];
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.entryType.layout.formData[1];
-    entryTypeEntry.builderFunction = entryTypeSelectorBuilder;
-    entryTypeEntry.selector.actionFunction = (childElement,parentElement) => {
-        childElement.setChildKey(parentElement.getValue());
-    }
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }

@@ -203,7 +203,7 @@ export default class ConfigurableFormMaker {
 
             //children - add the child list if we have one for this element (for collections only)
             if(formInfo.childLayoutTemplate) {
-                layout.push(apogeeutil.jsonCopy(formInfo.childLayoutTemplate));
+                layout.push(_.cloneDeep(formInfo.childLayoutTemplate));
             }
 
             //value - string format

@@ -95,7 +95,7 @@ const FORM_INFO = {
 			"formData": [
 				{
 					"type": "textField",
-					"label": "Size in pixels: ",
+					"label": "Size in Chars: ",
 					"key": "size",
 					"hint": "optional"
 				}
