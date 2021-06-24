@@ -45,6 +45,20 @@ export function entryTypeSelectorBuilder(instance,form,elementInitData) {
         if(panel) return panel.getValue();
         else return storedValue;
     }
+    instance.getMeta = () => {
+        //NOTE: this should add a parent type "object", which is what we do in panel.
+        //Maybe there is a risk of this code getting changed in one place only when we want it changed in both.
+        let fullMeta = {};
+        //copy in the stored meta
+        if(this.meta) {
+            Object.assign(fullMeta,this.meta);
+        }
+        //override an parent type to be "object"
+        fullMeta.parentType = "object";
+        //add the child elements
+        fullMeta.childMeta = panel.getMeta();
+        return fullMeta;
+    }
     instance.setChildKey = newChildKey => {
         if(newChildKey != childKey) {
             childKey = newChildKey;

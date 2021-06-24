@@ -44,7 +44,7 @@ export default class ConfigurableFormMaker {
             //the key value is either a single value or an array
             if(Array.isArray(keyValue)) {
                 //flag must equal one of the maker element values
-                if(keyValue.indexOf(targetValue < 0)) return false;
+                if(keyValue.indexOf(targetValue) < 0) return false;
             }
             else {
                 //flag value must equal maker element value
@@ -347,10 +347,10 @@ export default class ConfigurableFormMaker {
                 }
             }
             if(elementFormResult.valueMixed !== undefined) {
-                if((elementFormResult.valueType == "value")||(elementFormResult.valueType == "reference")) {
+                if((elementFormResult.valueType == "string")||(elementFormResult.valueType == "expressionReference")) {
                     elementConfig.value = elementFormResult.valueMixed;
                 }
-                else if(elementFormResult.valueType == "stringified") {
+                else if(elementFormResult.valueType == "json") {
                     elementConfig.value = JSON.parse(elementFormResult.valueMixed);
                 }
             }
@@ -393,7 +393,7 @@ export default class ConfigurableFormMaker {
                 if(selectorInput.valueType == "string") {
                     selectorOutput.parentValue = selectorInput.parentValue;
                 }
-                else if(selectorInput.valueType == "literal") {
+                else if(selectorInput.valueType == "json") {
                     selectorOutput.parentValue = JSON.parse(selectorInput.parentValue);
                 }
                 else {
@@ -434,7 +434,7 @@ export default class ConfigurableFormMaker {
                     if(selectorInput.valuePanel.valueType == "string") {
                         selectorOutput.parentValue = selectorInput.valuePanel.parentValue;
                     }
-                    else if(selectorInput.valuePanel.valueType == "literal") {
+                    else if(selectorInput.valuePanel.valueType == "json") {
                         selectorOutput.parentValue = JSON.parse(selectorInput.valuePanel.parentValue);
                     }
                     else if(selectorInput.valuePanel.valueType == "multi") {
@@ -506,7 +506,7 @@ const COMPILED_ENTRIES_ELEMENTS_CONFIG = {
                 parentValue: "reference"
             },
             meta: {
-                expression: "simple",
+                expression: "reference",
             }
         },
         {
@@ -536,14 +536,14 @@ const COMPILED_VALUE_STRING_ELEMENT_CONFIG = {
         	hint: "optional, text",
         	meta: {
                 expression: "choice",
-                expressionChoiceKey: "valueType",
+                expressionChoiceKey: "expressionType",
             }
         },
         {
             type: "radioButtonGroup",
-            entries: [["Value","value"],["Reference","simple"]],
+            entries: [["Value","value"],["Reference","reference"]],
             value: "value",
-            key: "valueType"
+            key: "expressionType"
         }
     ]
 }
@@ -565,14 +565,14 @@ const COMPILED_VALUE_JSON_ELEMENT_CONFIG = {
         	hint: "optional, JSON literal - Number, boolean, quoted string, JSON array...",
         	meta: {
                 expression: "choice",
-                expressionChoiceKey: "valueType",
+                expressionChoiceKey: "expressionType",
             }
         },
         {
             type: "radioButtonGroup",
-            entries: [["Value","value"],["Reference","simple"]],
+            entries: [["Value","value"],["Reference","reference"]],
             value: "value",
-            key: "valueType"
+            key: "expressionType"
         }
     ]
 }
@@ -588,7 +588,7 @@ const VALUE_EITHER_ELEMENT_CONFIG = {
 		{
 			type: "radioButtonGroup",
 			label: "Value Type: ",
-			entries: [["String","value"],["JSON literal - Number, boolean, quoted string, JSON array...","stringified"]],
+			entries: [["String","string"],["JSON literal - Number, boolean, quoted string, JSON array...","json"]],
 			key: "valueType",
 			hint: "optional"
 		}
@@ -606,16 +606,16 @@ const COMPILED_VALUE_EITHER_ELEMENT_CONFIG = {
                 expression: "choice",
                 expressionChoiceKey: "valueType",
                 expressionChoiceMap: {
-                    "value": "value",
-                    "stringified": "value",
-                    "reference": "simple"
+                    "string": "value",
+                    "json": "value",
+                    "expressionReference": "reference"
                 }
             }
 		},
 		{
 			type: "radioButtonGroup",
 			label: "Value Type: ",
-			entries: [["String","value"],["JSON literal - Number, boolean, quoted string, JSON array...","stringified"],["Reference","reference"]],
+			entries: [["String","string"],["JSON literal - Number, boolean, quoted string, JSON array...","json"],["Reference","expressionReference"]],
 			key: "valueType",
 			hint: "optional"
 		}
@@ -654,7 +654,7 @@ const COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG = {
                 parentValue: "reference"
             },
             meta: {
-                expression: "simple",
+                expression: "reference",
             }
         },
         {
@@ -716,16 +716,12 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 						type: "textField",
 						label: "Selector Parent Value: ",
 						size: 30,
-						key: "parentValue",
-						selector: {
-							parentKey: "valueType",
-							parentValues: ["string","literal"]
-						}
+						key: "parentValue"
 					},
 					{
 						type: "radioButtonGroup",
 						label: "Value Type: ",
-						entries: [["String","string"],["Literal - Number, Boolean, null","literal"]],
+						entries: [["String","string"],["JSON Literal - Number, Boolean, null","json"]],
 						value: "string",
 						key: "valueType",
 						hint: "required",
@@ -787,7 +783,7 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 						type: "radioButtonGroup",
 						label: "Selector Parent Value Type: ",
 						vertical: true,
-						entries: [["String","string"],["Literal - Number, Boolean, null","literal"],["Multiple Values - Enter an array of literals or quoted strings","multi"]],
+						entries: [["String","string"],["Literal - Number, Boolean, null","json"],["Multiple Values - Enter an array of literals or quoted strings","multi"]],
 						value: "string",
 						key: "valueType"
 					},
@@ -798,7 +794,7 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 						key: "parentValue",
 						selector: {
 							parentKey: "valueType",
-							parentValues: ["string","literal"]
+							parentValues: ["string","json"]
 						},
 				        hint: "required"
 					},

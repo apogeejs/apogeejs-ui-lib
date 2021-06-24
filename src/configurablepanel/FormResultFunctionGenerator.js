@@ -92,8 +92,13 @@ export default class FormResultFunctionGenerator {
                 return this._loadSimpleValueEntry(assigneeName,value);
 
             case "simple":
-                //this is an expression
+            case "code":
+                //this is a javascript expression
                 return this._loadSimpleExpressionEntry(assigneeName,value);
+
+            case "reference":
+                //this is a variable reference 
+                return this._loadReferenceExpressionEntry(assigneeName,value);
                 
             default:
                 throw new Error("Expression type not supported for " + assigneeName + ": " + expressionType);
@@ -138,6 +143,25 @@ export default class FormResultFunctionGenerator {
         //flag this function body as having an expression
         this.hasExpressions = true;
         return true;
+    }
+
+    /** This laods a value to the function body for a reference expression. This means the value should be
+     * then name of a variable, such as a table name por a table name dot one of its fields.
+     */
+    _loadReferenceExpressionEntry(assigneeName,value) {
+        //this shouldn't happen, the input should be a string
+        if(value === null) return false;
+
+        let trimmedValue = value.toString().trim();
+        if(trimmedValue === "") return false;
+
+        if(!isValidQualifiedVariableName(trimmedValue)) {
+            throw new Error("The following is not a valid reference: " + trimmedValue + " (Required: a valid variable name, dots allowed)");
+        }
+
+        //from here it is the same as a simple expression
+        return this._loadSimpleExpressionEntry(assigneeName,trimmedValue);
+
     }
 
     /** This loads a value to an assignee fpr a panel, as part of the form result function body. */
@@ -189,6 +213,20 @@ export default class FormResultFunctionGenerator {
 
 }
 
+/** This test a general qualified variable name. There is no provision for excluded table names. 
+ * @private */
+ const QUALFIED_NAME_PATTERN = /([a-zA-Z_$][0-9a-zA-Z_$]*)+(\.+[a-zA-Z_$][0-9a-zA-Z_$]*)*/;
+ 
+ /** This tests a general qualified variable name (meaning it can include dots). There is no provision for excluded table names. 
+  * The return value is true or false */
+function isValidQualifiedVariableName(variableName) {
+     let nameResult = QUALFIED_NAME_PATTERN.exec(variableName);
+     return ((nameResult)&&(nameResult[0] == variableName));
+  }
+
+
+//////////////////////////////////
+
 /** 
  * Legacy Form Converter
  * This interface matches the old, deprecated interface to get a function body from a form value.
@@ -198,3 +236,4 @@ export function getFormResultFunctionBody(formValue,formMeta) {
     functionGenerator.setInput(formValue,formMeta);
     return functionGenerator.getFunctionBody();
 }
+

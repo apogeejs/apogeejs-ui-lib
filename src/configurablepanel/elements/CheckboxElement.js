@@ -86,7 +86,7 @@ CheckboxElement.TYPE_NAME = "checkbox";
 //------------------------
 
 const FORM_INFO = {
-    "uniqueKey": "basicCheckboxGroup",
+    "uniqueKey": "basicCheckbox",
 	"type": "checkbox",
 	"label": "Checkbox",
 	"makerFlags": [
