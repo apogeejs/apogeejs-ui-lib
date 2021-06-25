@@ -408,7 +408,7 @@ ConfigurablePanel.configurableFormMaker = null;
 // Form Maker Data
 //============================
 
-const FORM_INFO = {
+const DATA_FORM_INFO = {
     "uniqueKey": "topLevelDataPanel",
 	"type": "panel",
 	"label": "Panel",
@@ -416,14 +416,38 @@ const FORM_INFO = {
     "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
 }
 
-const MAKER_ELEMENT_INFO = {
+const DATA_MAKER_ELEMENT_INFO = {
     category: "collection",
-    orderKey: FORM_INFO.label,
+    flags : {
+		"submit": [false,undefined]
+	},
+    orderKey: DATA_FORM_INFO.label,
     isTopLevelLayout: true,
-    formInfo: FORM_INFO,
+    formInfo: DATA_FORM_INFO,
     completeChildListLayout: basicCompleteChildListLayout 
 }
 
-ConfigurablePanel.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+const ACTION_FORM_INFO = {
+    "uniqueKey": "topLevelDataPanel",
+	"type": "panel",
+	"label": "Panel",
+	"makerFlags": [
+        "hasSubmit"
+    ],
+    "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
+}
+
+const ACTION_MAKER_ELEMENT_INFO = {
+    category: "collection",
+    flags : {
+		"submit": [true]
+	},
+    orderKey: ACTION_FORM_INFO.label,
+    isTopLevelLayout: true,
+    formInfo: ACTION_FORM_INFO,
+    completeChildListLayout: basicCompleteChildListLayout 
+}
+
+ConfigurablePanel.MAKER_ELEMENT_ARRAY = [DATA_MAKER_ELEMENT_INFO, ACTION_MAKER_ELEMENT_INFO];
 
 

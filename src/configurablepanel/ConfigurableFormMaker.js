@@ -28,7 +28,15 @@ export default class ConfigurableFormMaker {
     }
 
     getOutputFormLayout(formResult) {
-        return formResult.map(elementResult => this.getElementLayout(elementResult.value));
+        let layout = [];
+        if(formResult.formData) {
+            let bodyLayout = formResult.formData.map(elementResult => this.getElementLayout(elementResult.value));
+            layout = layout.concat(bodyLayout);
+        }
+        if(formResult.submit) {
+            layout.push(formResult.submit);
+        }
+        return layout;
     }
 
     //==============================
@@ -276,6 +284,10 @@ export default class ConfigurableFormMaker {
 
                 layout.push(additionalOptionsElement);
             }
+
+            if(formInfo.makerFlags.indexOf("hasSubmit") >= 0) {
+                layout.push(SUBMIT_MAKER_LAYOUT);
+            }
         }
         catch(error) {
             if(error.stack) console.error(error.stack);
@@ -463,6 +475,69 @@ export default class ConfigurableFormMaker {
             return this.getErrorElementLayout("Error making element: " + error.toString());
         }
     }
+}
+
+/** This is the added layout if there has a submit button. */
+const SUBMIT_MAKER_LAYOUT = {
+    "type": "panel",
+    "formData": [
+        {
+            "type": "htmlDisplay",
+            "html": "<hr style='border-top: 1px solid rgba(0,0,0,.4);'>"
+        },
+        {
+            "type": "heading",
+            "text": "Submit"
+        },
+        {
+            "type": "invisible",
+            "value": "submit",
+            "key": "type"
+        },
+        {
+            "type": "horizontalLayout",
+            "formData": [
+                {
+                    "type": "checkbox",
+                    "label": "Submit Button:",
+                    "value": true,
+                    "key": "useSubmit"
+                },
+                {
+                    "type": "textField",
+                    "label": "Text: ",
+                    "value": "OK",
+                    "key": "submitLabel",
+                    "selector": {
+                        "parentKey": "useSubmit",
+                        "parentValue": true
+                    }
+                }
+            ]
+        },
+        {
+            "type": "horizontalLayout",
+            "formData": [
+                {
+                    "type": "checkbox",
+                    "label": "Cancel Button: ",
+                    "value": false,
+                    "key": "useCancel"
+                },
+                {
+                    "type": "textField",
+                    "label": "Text: ",
+                    "value": "Cancel",
+                    "key": "cancelLabel",
+                    "selector": {
+                        "parentKey": "useCancel",
+                        "parentValue": true
+                    }
+                }
+            ]
+        }
+    ],
+    "key": "submit"
 }
 
 //layout items to make the form generator layout
