@@ -353,8 +353,43 @@ export default class ConfigurablePanel {
         }
         //add the top level elements from here
         makerElementInfoArray.push(...ConfigurablePanel.MAKER_ELEMENT_ARRAY);
+
+        //sort the elements alphabetically
+        makerElementInfoArray.sort( (e1,e2) => {
+            let key1 = ConfigurablePanel._getOrderKey(e1);
+            let key2 = ConfigurablePanel._getOrderKey(e2);
+            if (key1 > key2) return 1;
+            else if(key1 < key2) return -1;
+            else return 0;
+        })
+
         ConfigurablePanel.configurableFormMaker = new ConfigurableFormMaker(makerElementInfoArray,ConfigurablePanel.TOP_LEVEL_FORM_INFO);
 
+    }
+
+    /** This is the sort order to display the elements in the form desigener.
+     * 1) sort by type: element, collection, layout
+     * 2) sort by makerElementInfo.orderKey if present, otherwise the element display label
+     * 
+     * The orderKey is provided to allow overriding the label intended fro cases where a single element
+     * has multiple options and you want to order these options in a specific way, such as putting the 
+     * default or simple option first, even if the label is not first alphabetically.
+     */
+    static _getOrderKey(makerElementInfo) {
+        let orderPrefix;
+        switch(makerElementInfo.category) {
+            case "layout":
+                orderPrefix = 3;
+                break;
+            case "collection":
+                orderPrefix = 2;
+                break;
+            case "element": 
+            default:
+                orderPrefix = 1;
+                break;
+        }
+        return orderPrefix + (makerElementInfo.orderKey ? makerElementInfo.orderKey : makerElementInfo.formInfo.label).toLowerCase();
     }
 
     static getFormMakerLayout(formMakerFlags) {

@@ -405,74 +405,6 @@ ListElement.TYPE_NAME = "list";
 // Form Maker Data
 //------------------------
 
-const FORM_INFO = {
-    "uniqueKey": "basicList",
-	"type": "list",
-	"label": "List",
-    "childLayoutTemplate": {
-        "type": "list",
-        "label": "List Entry Elements: ",
-        "key": "entryTypes"
-    },
-	"customLayout": [
-		{
-			"entries": [
-				[
-					"Single Entry Type",
-					"single"
-				],
-				[
-					"Multi Entry Type",
-					"multi"
-				]
-			],
-			"key": "listType",
-			"label": "List Type: ",
-			"selector": {
-				"parentKey": "entryTypes",
-                "actionFunction": (childElement,entryTypeElement) => {
-                    let entryTypes = entryTypeElement.getValue();
-                    if((entryTypes)&&(entryTypes.length > 1)) {
-                        if(childElement.getState() != "disabled") {
-                            childElement.setValue("multi");
-                            childElement.setState("disabled");
-                        }
-                    }
-                    else {
-                        if(childElement.getState() != "normal") {
-                            childElement.setState("normal");
-                        }
-                    }
-                }
-			},
-			"type": "radioButtonGroup"
-		}
-	],
-	"makerFlags": [
-		"hasLabel",
-		"hasKey",
-        "hasSelector"
-	]
-}
-
-const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
-    if(formResult.listType == "single") {
-        let entryTypes = elementConfig.entryTypes;
-        delete elementConfig.entryTypes;
-        if(entryTypes.length > 0) {
-            elementConfig.entryType = entryTypes[0];
-        }
-    }
-    if(formResult.entryTypes) {
-        elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
-            let entryType = {};
-            if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
-            entryType.layout = formMaker.getElementLayout(formInfo.value);
-            return entryType;
-        });
-    }
-}
-
 const CHILD_LAYOUT_ADDITION = [
     {
         type: "htmlDisplay",
@@ -485,38 +417,11 @@ const CHILD_LAYOUT_ADDITION = [
     }
 ];
 
-function completeChildListLayout(parentLayout,elementLayoutInfoList) {
-    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"))
-    childLayoutEntry.entryTypes = elementLayoutInfoList
-        .filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
-        .map(elementLayoutInfo => {
-            return {
-                label: elementLayoutInfo.makerElementInfo.formInfo.label,
-                layout: {
-                    type: "panel",
-                    key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
-                    formData: elementLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
-                } 
-            }
-        });
-}
-
-const MAKER_ELEMENT_INFO = {
-    category: "collection",
-    orderKey: FORM_INFO.label,
-    formInfo: FORM_INFO,
-    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
-    completeChildListLayout: completeChildListLayout
-}
-
-
-////////////////////////////////////////////////////////////////////////
-
 
 const SIMPLE_FORM_INFO = {
     "uniqueKey": "simpleList",
 	"type": "list",
-	"label": "Simple List",
+	"label": "List - Simple",
     "childLayoutTemplate": {
         "type": "panel",
         "formData": [
@@ -580,21 +485,17 @@ const SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfi
 
 const SIMPLE_MAKER_ELEMENT_INFO = {
     category: "collection",
-    orderKey: SIMPLE_FORM_INFO.label,
+    orderKey: "List - 1",
     formInfo: SIMPLE_FORM_INFO,
     completeChildListLayout: simpleListCompleteChildListLayout,
     makerCustomProcessing: SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION
 }
 
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////
-
 
 const MULTI_ENTRY_FORM_INFO = {
     "uniqueKey": "multiEntryList",
 	"type": "list",
-	"label": "Multi Entry List",
+	"label": "List - Multi-Entry",
     "childLayoutTemplate": {
         "type": "list",
         "entryType": {
@@ -668,14 +569,115 @@ const MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,element
 
 const MULTI_ENTRY_MAKER_ELEMENT_INFO = {
     category: "collection",
-    orderKey: MULTI_ENTRY_FORM_INFO.label,
+    orderKey: "List - 2",
     formInfo: MULTI_ENTRY_FORM_INFO,
     completeChildListLayout: multiEntryListCompleteChildListLayout,
     makerCustomProcessing: MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION
 }
 
-////////////////////////////////////////////////////////////
 
-ListElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO,SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_ELEMENT_INFO];
+ListElement.MAKER_ELEMENT_ARRAY = [SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_ELEMENT_INFO];
+
+
+//=======================================================
+//old list maker info
+//=======================================================
+
+// const FORM_INFO = {
+//     "uniqueKey": "basicList",
+// 	"type": "list",
+// 	"label": "List",
+//     "childLayoutTemplate": {
+//         "type": "list",
+//         "label": "List Entry Elements: ",
+//         "key": "entryTypes"
+//     },
+// 	"customLayout": [
+// 		{
+// 			"entries": [
+// 				[
+// 					"Single Entry Type",
+// 					"single"
+// 				],
+// 				[
+// 					"Multi Entry Type",
+// 					"multi"
+// 				]
+// 			],
+// 			"key": "listType",
+// 			"label": "List Type: ",
+// 			"selector": {
+// 				"parentKey": "entryTypes",
+//                 "actionFunction": (childElement,entryTypeElement) => {
+//                     let entryTypes = entryTypeElement.getValue();
+//                     if((entryTypes)&&(entryTypes.length > 1)) {
+//                         if(childElement.getState() != "disabled") {
+//                             childElement.setValue("multi");
+//                             childElement.setState("disabled");
+//                         }
+//                     }
+//                     else {
+//                         if(childElement.getState() != "normal") {
+//                             childElement.setState("normal");
+//                         }
+//                     }
+//                 }
+// 			},
+// 			"type": "radioButtonGroup"
+// 		}
+// 	],
+// 	"makerFlags": [
+// 		"hasLabel",
+// 		"hasKey",
+//         "hasSelector"
+// 	]
+// }
+
+// const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+//     if(formResult.listType == "single") {
+//         let entryTypes = elementConfig.entryTypes;
+//         delete elementConfig.entryTypes;
+//         if(entryTypes.length > 0) {
+//             elementConfig.entryType = entryTypes[0];
+//         }
+//     }
+//     if(formResult.entryTypes) {
+//         elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
+//             let entryType = {};
+//             if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
+//             entryType.layout = formMaker.getElementLayout(formInfo.value);
+//             return entryType;
+//         });
+//     }
+// }
+
+
+
+// function completeChildListLayout(parentLayout,elementLayoutInfoList) {
+//     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"))
+//     childLayoutEntry.entryTypes = elementLayoutInfoList
+//         .filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+//         .map(elementLayoutInfo => {
+//             return {
+//                 label: elementLayoutInfo.makerElementInfo.formInfo.label,
+//                 layout: {
+//                     type: "panel",
+//                     key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
+//                     formData: elementLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+//                 } 
+//             }
+//         });
+// }
+
+// const MAKER_ELEMENT_INFO = {
+//     category: "collection",
+//     orderKey: FORM_INFO.label,
+//     formInfo: FORM_INFO,
+//     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+//     completeChildListLayout: completeChildListLayout
+// }
+
+
+// ////////////////////////////////////////////////////////////////////////
 
 
