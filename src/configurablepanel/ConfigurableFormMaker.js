@@ -628,7 +628,7 @@ const VALUE_JSON_ELEMENT_CONFIG = {
 	type: "textField",
 	label: "Initial Value: ",
 	key: "valueStringified",
-	hint: "optional, JSON literal - Number, boolean, quoted string, JSON array..."
+	hint: "optional"
 }
 			
 const COMPILED_VALUE_JSON_ELEMENT_CONFIG = {
@@ -638,7 +638,7 @@ const COMPILED_VALUE_JSON_ELEMENT_CONFIG = {
         	type: "textField",
         	label: "Initial Value: ",
         	key: "valueStringified",
-        	hint: "optional, JSON literal - Number, boolean, quoted string, JSON array...",
+        	hint: "optional",
         	meta: {
                 expression: "choice",
                 expressionChoiceKey: "expressionType",
@@ -664,7 +664,7 @@ const VALUE_EITHER_ELEMENT_CONFIG = {
 		{
 			type: "radioButtonGroup",
 			label: "Value Type: ",
-			entries: [["String","string"],["JSON literal - Number, boolean, quoted string, JSON array...","json"]],
+			entries: [["String","string"],["Non-String","json"]],
 			key: "valueType",
 			hint: "optional"
 		}
@@ -691,8 +691,9 @@ const COMPILED_VALUE_EITHER_ELEMENT_CONFIG = {
 		{
 			type: "radioButtonGroup",
 			label: "Value Type: ",
-			entries: [["String","string"],["JSON literal - Number, boolean, quoted string, JSON array...","json"],["Reference","expressionReference"]],
-			key: "valueType",
+			entries: [["String","string"],["Non-String","json"],["Reference","expressionReference"]],
+			value: "string",
+            key: "valueType",
 			hint: "optional"
 		}
 	]
@@ -797,7 +798,7 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 					{
 						type: "radioButtonGroup",
 						label: "Value Type: ",
-						entries: [["String","string"],["JSON Literal - Number, Boolean, null","json"]],
+						entries: [["String","string"],["Non-String","json"]],
 						value: "string",
 						key: "valueType",
 						hint: "required",
@@ -859,7 +860,7 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 						type: "radioButtonGroup",
 						label: "Selector Parent Value Type: ",
 						vertical: true,
-						entries: [["String","string"],["Literal - Number, Boolean, null","json"],["Multiple Values - Enter an array of literals or quoted strings","multi"]],
+						entries: [["String","string"],["Non-String","json"],["Multiple Values - Enter an array, use qoutes on strings","multi"]],
 						value: "string",
 						key: "valueType"
 					},

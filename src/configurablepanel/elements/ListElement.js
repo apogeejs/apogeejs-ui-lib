@@ -12,18 +12,6 @@ export default class ListElement extends ConfigurableElement {
     constructor(form,elementInitData) {
         super(form,elementInitData);
 
-        var containerElement = this.getElement();
-
-        this.upUrl = uiutil.getResourcePath("/up_black.png","ui-lib");
-        this.downUrl = uiutil.getResourcePath("/down_black.png","ui-lib");
-        this.closeUrl = uiutil.getResourcePath("/close_black.png","ui-lib");
-        
-        //label
-        let labelElement = this.getLabelElement(elementInitData);
-        if(labelElement) {
-            containerElement.appendChild(labelElement);
-        }
-        
         //initialize the list
         if(elementInitData.entryType) {
             this.entryTypes = [elementInitData.entryType];
@@ -33,11 +21,51 @@ export default class ListElement extends ConfigurableElement {
             this.entryTypes = elementInitData.entryTypes;
             this.isMultitypeList = true;
         }
+
+        //options
+        if(elementInitData.maxButtonCount) {
+            this.maxButtonCount = elementInitData.maxButtonCount;
+        }
+        else {
+            this.maxButtonCount = MAX_BUTTON_COUNT;
+        }
+
+        if(elementInitData.addButtonLabel) {
+            this.addButtonLabel = elementInitData.addButtonLabel;
+        }
+        else {
+            this.addButtonLabel = DEFAULT_ADD_BUTTON_LABEL;
+        }
+
+        var containerElement = this.getElement();
+
+        this.upUrl = uiutil.getResourcePath("/up_black.png","ui-lib");
+        this.downUrl = uiutil.getResourcePath("/down_black.png","ui-lib");
+        this.closeUrl = uiutil.getResourcePath("/close_black.png","ui-lib");
+
+        //head element - top line of list
+        let headElement = document.createElement("div");
+        headElement.className = "listElement_headElement";
+        containerElement.appendChild(headElement);
         
+        let labelElement = this.getLabelElement(elementInitData);
+        if(labelElement) {
+            headElement.appendChild(labelElement);
+        }
+
+        this._insertControlElements(headElement);
+        
+        //ADD HINT AND HELP???
+
+        
+        //list entry container
         this.listEntries = [];
-        this.elementContainer = null;
-        this.listElement = this._createListContainer(); 
-        containerElement.appendChild(this.listElement); 
+        let elementContainerWrapper = document.createElement("div");
+        elementContainerWrapper.className = "listElement_elementContainerWrapper";
+        containerElement.appendChild(elementContainerWrapper);
+        this.elementContainer = document.createElement("div");
+        this.elementContainer.className = "listElement_elementContainer";
+        elementContainerWrapper.appendChild(this.elementContainer);
 
         this.inheritValueMap = {};
         
@@ -206,39 +234,42 @@ export default class ListElement extends ConfigurableElement {
     // List Management Functions
     //---------------------
 
-    _createListContainer() {
-        var listContainer = document.createElement("div");
-        listContainer.className = "listElement_listContainer";
+    _insertControlElements(headElement) {
+        //add all buttons or one button and a dropdown, depending on count of types
+        if(this.entryTypes.length <= this.maxButtonCount) {
+            this.entryTypes.forEach( (entryTypeJson,index) => {
+                let addButton= document.createElement("button");
+                addButton.className = "apogee_configurableElement_hideSelection listElement_addButton";
+                let labelText = entryTypeJson.label ? "+ "+ entryTypeJson.label : "+";
+                addButton.innerHTML = labelText;
+                addButton.onclick = () => {
+                    this._insertElement(entryTypeJson);
+                    this.inputDone();
+                }
+                headElement.appendChild(addButton);
+            });
+        }
+        else {
+            let entryTypeDropdown = document.createElement("select");
+            entryTypeDropdown.className = "apogee_configurableElement_hideSelection listElement_addButton";
 
-        //element container - houses elements
-        let elementContainerWrapper = document.createElement("div");
-        elementContainerWrapper.className = "listElement_elementContainerWrapper";
-        listContainer.appendChild(elementContainerWrapper);
-
-        this.elementContainer = document.createElement("div");
-        this.elementContainer.className = "listElement_elementContainer";
-        elementContainerWrapper.appendChild(this.elementContainer);
-
-        //control bar = has "add" buttons
-        let controlBar = document.createElement("div");
-        controlBar.className = "listElement_listControlBar";
-        this.entryTypes.forEach(entryTypeJson => {
             let addButton= document.createElement("button");
-            addButton.className = "listElement_addButton apogee_configurableElement_hideSelection";
-            let labelText = entryTypeJson.label ? "+ "+ entryTypeJson.label : "+";
-            addButton.innerHTML = labelText;
+            addButton.className = "apogee_configurableElement_hideSelection listElement_addButton";
+            addButton.innerHTML = this.addButtonLabel ? "+ "+ this.addButtonLabel : "+";
             addButton.onclick = () => {
+                let entryTypeJson = this.entryTypes[entryTypeDropdown.selectedIndex];
                 this._insertElement(entryTypeJson);
                 this.inputDone();
             }
-            controlBar.appendChild(addButton);
-            let lineBreak = document.createElement("br");
-            lineBreak.className = "apogee_configurableElement_hideSelection";
-            controlBar.appendChild(lineBreak);
-        });
-        listContainer.appendChild(controlBar);
+            headElement.appendChild(addButton);
+            headElement.appendChild(entryTypeDropdown);
 
-        return listContainer;
+            this.entryTypes.forEach( (entryTypeJson,index) => {
+                var entry = document.createElement("option");
+                entry.text = entryTypeJson.label ? entryTypeJson.label : "Entry Type #" + index; //just in case label not set...
+                entryTypeDropdown.appendChild(entry);
+            });
+        }
     }
 
     _insertElement(entryTypeJson,optionalValue) {
@@ -401,21 +432,12 @@ export default class ListElement extends ConfigurableElement {
 
 ListElement.TYPE_NAME = "list";
 
+const MAX_BUTTON_COUNT = 3;
+const DEFAULT_ADD_BUTTON_LABEL = null;
+
 //------------------------
 // Form Maker Data
 //------------------------
-
-const CHILD_LAYOUT_ADDITION = [
-    {
-        type: "htmlDisplay",
-        html: "<hr style='border-top: 1px dashed rgba(0,0,0,.4);'>"
-    },
-    {
-        type: "textField",
-        label: "List Entry Button Text: ",
-        key: "_listButtonText"
-    }
-];
 
 
 const SIMPLE_FORM_INFO = {
@@ -426,8 +448,19 @@ const SIMPLE_FORM_INFO = {
         "type": "panel",
         "formData": [
             {
+                "type": "heading",
+                "text": "List Entry",
+                "level": 3
+            },
+            {
+                "type": "textField",
+                "label": "Button Text: ",
+                "key": "label"
+            },
+            {
                 "type": "dropdown",
-                "label": "List Entry Type: ",
+                "label": "Type: ",
+                "value": "basicPanel",
                 "key": "key",
             },
             {
@@ -463,12 +496,12 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
     let childLayoutMap = {};
     childLayoutInfoList.forEach(childLayoutInfo => {
         let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
-        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryType"));
-    let selectEntry = childLayoutEntry.formData[0];
+    let selectEntry = childLayoutEntry.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
-    let entryTypeEntry = childLayoutEntry.formData[1];
+    let entryTypeEntry = childLayoutEntry.formData.find(layout => (layout.type == "custom"));
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }
@@ -476,7 +509,7 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
 const SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
     if(formResult.entryType) {
         elementConfig.entryType = {};
-        if(formResult.entryType.value._listButtonText) elementConfig.entryType.label = formResult.entryType.value._listButtonText;
+        elementConfig.entryType.label = formResult.entryType.label;
         elementConfig.entryType.layout = formMaker.getElementLayout(formResult.entryType.value);
     }
 }
@@ -504,8 +537,19 @@ const MULTI_ENTRY_FORM_INFO = {
                 "type": "panel",
                 "formData": [
                     {
+                        "type": "heading",
+                        "text": "List Entry",
+                        "level": 3
+                    },
+                    {
+                        "type": "textField",
+                        "label": "Button Text: ",
+                        "key": "label"
+                    },
+                    {
                         "type": "dropdown",
-                        "label": "List Entry Type: ",
+                        "label": "Type: ",
+                        "value": "basicPanel",
                         "key": "key",
                     },
                     {
@@ -544,12 +588,12 @@ function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoLis
     let childLayoutMap = {};
     childLayoutInfoList.forEach(childLayoutInfo => {
         let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
-        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
+        childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"));
-    let selectEntry = childLayoutEntry.entryType.layout.formData[0];
+    let selectEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
-    let entryTypeEntry = childLayoutEntry.entryType.layout.formData[1];
+    let entryTypeEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "custom"));
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }
@@ -558,7 +602,7 @@ const MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,element
     if(formResult.entryTypes) {
         elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
             let entryType = {};
-            if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
+            entryType.label = formInfo.label;
             entryType.layout = formMaker.getElementLayout(formInfo.value);
             return entryType;
         });

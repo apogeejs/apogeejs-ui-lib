@@ -1,31 +1,24 @@
-/** Obverall container. Width, height tbd */
-.listElement_listContainer {
+.listElement_headElement {
     position: relative;
-    display: inline-block;
-    vertical-align: top;
 }
-/** The control bar has a width determined by its content buttons. */
-.listElement_listControlBar {
-    position: relative;
-    display: inline-block;
-    vertical-align: top;
-    padding: 5px;
-}
-/** We will stack the content buttons, if there are multiple. There will be an add
-button for each type of entry allowed. The label will indicate the associated type. */
 .listElement_addButton {
+    margin-left: 5px;
+    margin-right: 5px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.listElement_entryTypeDropdown {
     position: relative;
-    margin-bottom: 5px;
+    display: inline-block;
+    margin: 5px;
     white-space: nowrap;
 }
-/** the element container is left of the control bar. Width tbd. */
 .listElement_elementContainerWrapper {
     position: relative;
-    display: inline-block;
+    display: div;
     height: calc(100% - 10px);
     padding: 5px;
 }
-/** the element container is left of the control bar. Width tbd. */
 .listElement_elementContainer {
     position: relative;
     display: table;
