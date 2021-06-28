@@ -119,7 +119,9 @@ export const BASIC_CHILD_LAYOUT_TEMPLATE = {
 /** This is the completeChildListLayout function used by the Panel Element. This will be 
  * shared by some other elements, such as layouts and the top level panel. */
 export function basicCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
-    let childLayoutEntry = parentLayout.find(layout => (layout.key == "formData"))
+    let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
+    let contentLayout = contentLayoutElement.formData;
+    let childLayoutEntry = contentLayout.find(layout => (layout.key == "formData"))
     childLayoutEntry.entryTypes = elementLayoutInfoList.map(elementLayoutInfo => {
         return {
             label: elementLayoutInfo.makerElementInfo.formInfo.label,

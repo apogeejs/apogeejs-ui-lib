@@ -418,8 +418,7 @@ export default class ConfigurablePanel {
 ConfigurablePanel.elementMap = {};
 ConfigurablePanel.makerElementInfoMap = {};
 
-ConfigurablePanel.PANEL_CLASS = "apogee_configurablePanelBody";
-ConfigurablePanel.PANEL_CLASS_FILL_PARENT = "apogee_configurablePanelBody_fillParent";
+ConfigurablePanel.PANEL_CLASS_NORMAL = "apogee_configurablePanelBody";
 
 //This is displayed if there is an invalid layout passed in
 ConfigurablePanel.INVALID_INIT_DATA = {

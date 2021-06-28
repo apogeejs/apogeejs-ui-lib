@@ -485,6 +485,8 @@ const SIMPLE_FORM_INFO = {
 }
 
 function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+    let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
+    let contentLayout = contentLayoutElement.formData;
     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
@@ -498,7 +500,7 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
         let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
-    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryType"));
+    let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryType"));
     let selectEntry = childLayoutEntry.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.formData.find(layout => (layout.type == "custom"));
@@ -577,6 +579,8 @@ const MULTI_ENTRY_FORM_INFO = {
 }
 
 function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
+    let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
+    let contentLayout = contentLayoutElement.formData;
     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
@@ -590,7 +594,7 @@ function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoLis
         let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
-    let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"));
+    let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryTypes"));
     let selectEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "custom"));

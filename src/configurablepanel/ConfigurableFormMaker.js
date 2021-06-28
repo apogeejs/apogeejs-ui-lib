@@ -184,80 +184,85 @@ export default class ConfigurableFormMaker {
                 key: "type"
             });
                 
-            //heading
-            layout.push({
-                type: "heading",
-                text: formInfo.label
-            });
+            // //heading
+            // layout.push({
+            //     type: "heading",
+            //     text: formInfo.label
+            // });
+            //heading alternative
+            //element label
+            let mainShowHide = {
+                type: "showHideLayout",
+                heading: formInfo.label,
+                closed: false,
+                formData: []
+            };
+            let elementMainContent = mainShowHide.formData;
+            layout.push(mainShowHide);
 
             //label
             if(formInfo.makerFlags.indexOf("hasLabel") >= 0) {
-                layout.push(LABEL_ELEMENT_CONFIG);
+                elementMainContent.push(LABEL_ELEMENT_CONFIG);
             }
 
             //entries
             if(formInfo.makerFlags.indexOf("hasEntries") >= 0) {
                 if(allowInputExpresssions) {
-                    layout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
+                    elementMainContent.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
                 }
                 else {
-                    layout.push(ENTRIES_ELEMENTS_CONFIG);
+                    elementMainContent.push(ENTRIES_ELEMENTS_CONFIG);
                 }
             }
 
             //element specific layout
             if(formInfo.customLayout) {
-                layout.push(...formInfo.customLayout);
+                elementMainContent.push(...formInfo.customLayout);
             }
 
             //children - add the child list if we have one for this element (for collections only)
             if(formInfo.childLayoutTemplate) {
-                layout.push(apogeeutil._.cloneDeep(formInfo.childLayoutTemplate));
+                elementMainContent.push(apogeeutil._.cloneDeep(formInfo.childLayoutTemplate));
             }
 
             //value - string format
             if(formInfo.makerFlags.indexOf("valueString") >= 0) {
                 if(allowInputExpresssions) {
-                    layout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
+                    elementMainContent.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
                 }
                 else {
-                    layout.push(VALUE_STRING_ELEMENT_CONFIG);
+                    elementMainContent.push(VALUE_STRING_ELEMENT_CONFIG);
                 }
             }
 
             //value - json literal format
             if(formInfo.makerFlags.indexOf("valueJson") >= 0) {
                 if(allowInputExpresssions) {
-                    layout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
+                    elementMainContent.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
                 }
                 else {
-                    layout.push(VALUE_JSON_ELEMENT_CONFIG);
+                    elementMainContent.push(VALUE_JSON_ELEMENT_CONFIG);
                 }
             }
 
             //value - string or json literal format
             if(formInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
                 if(allowInputExpresssions) {
-                    layout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
+                    elementMainContent.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
                 }
                 else {
-                    layout.push(VALUE_EITHER_ELEMENT_CONFIG);
+                    elementMainContent.push(VALUE_EITHER_ELEMENT_CONFIG);
                 }
             }
 
             //value - boolean format
             if(formInfo.makerFlags.indexOf("valueBoolean") >= 0) {
                 if(allowInputExpresssions) {
-                    layout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
+                    elementMainContent.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
                 else {
-                    layout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
+                    elementMainContent.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
-            }
-
-            //key
-            if(formInfo.makerFlags.indexOf("hasKey") >= 0) {
-                layout.push(KEY_ELEMENT_CONFIG);
             }
                 
             //additional options
@@ -282,11 +287,16 @@ export default class ConfigurableFormMaker {
                     additionalOptionsElement.formData.push(...SELECTOR_ELEMENT_CONFIG_LIST);
                 }
 
-                layout.push(additionalOptionsElement);
+                elementMainContent.push(additionalOptionsElement);
             }
 
             if(formInfo.makerFlags.indexOf("hasSubmit") >= 0) {
-                layout.push(SUBMIT_MAKER_LAYOUT);
+                elementMainContent.push(SUBMIT_MAKER_LAYOUT);
+            }
+
+            //key
+            if(formInfo.makerFlags.indexOf("hasKey") >= 0) {
+                layout.push(KEY_ELEMENT_CONFIG);
             }
         }
         catch(error) {
