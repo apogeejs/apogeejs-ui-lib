@@ -1,27 +1,27 @@
 import apogeeutil from "/apogeejs-util-lib/src/apogeeUtilLib.js";
 
-export default class ConfigurableFormMaker {
-    constructor(makerElementInfoArray,topLevelFormInfo) {
+export default class ConfigurableFormDesigner {
+    constructor(designerElementInfoArray,topLevelFormInfo) {
         this.cachedLayouts = {};
-        this.makerElementInfoArray = makerElementInfoArray;
+        this.designerElementInfoArray = designerElementInfoArray;
         this.topLevelFormInfo = topLevelFormInfo;
 
         let customProcessingMap = {};
-        if(makerElementInfoArray) {
-            makerElementInfoArray.forEach(makerElementInfo => {
-                if((makerElementInfo.makerCustomProcessing)&&(makerElementInfo.formInfo.uniqueKey)) {
-                    customProcessingMap[makerElementInfo.formInfo.uniqueKey] = makerElementInfo.makerCustomProcessing;
+        if(designerElementInfoArray) {
+            designerElementInfoArray.forEach(designerElementInfo => {
+                if((designerElementInfo.designerCustomProcessing)&&(designerElementInfo.formInfo.uniqueKey)) {
+                    customProcessingMap[designerElementInfo.formInfo.uniqueKey] = designerElementInfo.designerCustomProcessing;
                 }
             })
         }
         this.formCustomProcessingMap = customProcessingMap;
     }
 
-    getFormMakerLayout(flags) {
+    getFormDesignerLayout(flags) {
         let flagsString = this.getFlagsString(flags);
         let layout = this.cachedLayouts[flagsString];
         if(!layout) {
-            layout = this.createMakerFormLayout(flags);
+            layout = this.createDesignerFormLayout(flags);
             this.cachedLayouts[flagsString] = layout;
         }
         return layout;
@@ -43,20 +43,20 @@ export default class ConfigurableFormMaker {
     // Internal Functions
     //==============================
 
-    /** This method checks if the maker element info meets the options for the input flags. */
-    getFlagsValid(makerElementInfo,flags) {
-        if(!makerElementInfo.flags) return true;
+    /** This method checks if the designer element info meets the options for the input flags. */
+    getFlagsValid(designerElementInfo,flags) {
+        if(!designerElementInfo.flags) return true;
 
-        for(let key in makerElementInfo.flags) {
-            let keyValue = makerElementInfo.flags[key];
+        for(let key in designerElementInfo.flags) {
+            let keyValue = designerElementInfo.flags[key];
             let targetValue = flags[key];
             //the key value is either a single value or an array
             if(Array.isArray(keyValue)) {
-                //flag must equal one of the maker element values
+                //flag must equal one of the designer element values
                 if(keyValue.indexOf(targetValue) < 0) return false;
             }
             else {
-                //flag value must equal maker element value
+                //flag value must equal designer element value
                 if(keyValue != targetValue) return false;
             }
         }
@@ -67,16 +67,16 @@ export default class ConfigurableFormMaker {
         return JSON.stringify(apogeeutil.getNormalizedObjectCopy(flags));
     }
 
-    /** This function configures a layout for the form maker, depending on the input option flags
+    /** This function configures a layout for the form designer, depending on the input option flags
      * This value is recursive, meaning the collection layouts contain children which include
      * themselves. As such, the value will cause a stack overflow if you try to convert it to a JSON or extended JSON. */
-    createMakerFormLayout(flags) {
+    createDesignerFormLayout(flags) {
 
         //The top level of a form is a panel. It can have a number of child elements in it.
         //These chid elements include "parents", which are elements that can have child elements,
         //such as the panel or the list (or the layout elements).
 
-        //This is a list of info on each element, including the form maker layout of this element when it appears 
+        //This is a list of info on each element, including the form designer layout of this element when it appears 
         //in a collection, such as the panel.
         let elementLayoutInfoList = [];
 
@@ -88,47 +88,47 @@ export default class ConfigurableFormMaker {
 
         try {
             
-            //process each configurable element (FUTURE - allow multiple form maker entries for a single element, such as 
+            //process each configurable element (FUTURE - allow multiple form designer entries for a single element, such as 
             //a simple list and a flexible list)
-            this.makerElementInfoArray.forEach(makerElementInfo => {
+            this.designerElementInfoArray.forEach(designerElementInfo => {
                 //verify some required elements
                 let missingElements = [];
-                if(!makerElementInfo) {
+                if(!designerElementInfo) {
                     console.error("Form designer error: Designer Element Info missing!");
                     return;
                 }
-                if(!makerElementInfo.category) missingElements.push("category");
-                if(!makerElementInfo.formInfo) missingElements.push("formInfo");
-                if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
-                    if(!makerElementInfo.completeChildListLayout) {
+                if(!designerElementInfo.category) missingElements.push("category");
+                if(!designerElementInfo.formInfo) missingElements.push("formInfo");
+                if((designerElementInfo.category == "collection")||(designerElementInfo.category == "layout")) {
+                    if(!designerElementInfo.completeChildListLayout) {
                         missingElements.push(completeChildListLayout);
                     }
                 }
                 if(missingElements.length > 0) {
-                    console.error("Missing required elements for form designer element: " + missingElements.join(", ") + "; " + JSON.stringify(makerElementInfo));
+                    console.error("Missing required elements for form designer element: " + missingElements.join(", ") + "; " + JSON.stringify(designerElementInfo));
                     return;
                 }   
 
                 //create the form designer element layouts - first filtering them based on flags
-                if(this.getFlagsValid(makerElementInfo,flags)) {
+                if(this.getFlagsValid(designerElementInfo,flags)) {
 
                     //this is the layout of an element as it appears in the form designer
-                    let elementLayout = this.getMakerElementLayout(makerElementInfo.formInfo,flags);
+                    let elementLayout = this.getDesignerElementLayout(designerElementInfo.formInfo,flags);
 
-                    if(makerElementInfo.isTopLevelLayout) {
+                    if(designerElementInfo.isTopLevelLayout) {
                         topLevelLayout = elementLayout;
                     }
                     else {
                         elementLayoutInfoList.push({
-                            makerElementInfo: makerElementInfo,
+                            designerElementInfo: designerElementInfo,
                             elementLayout: elementLayout
                         });
                     }
 
                     //save any parent elements, for additional processing
-                    if((makerElementInfo.category == "collection")||(makerElementInfo.category == "layout")) {
+                    if((designerElementInfo.category == "collection")||(designerElementInfo.category == "layout")) {
                         parentLayoutInfoList.push({
-                            makerElementInfo:makerElementInfo,
+                            designerElementInfo:designerElementInfo,
                             parentLayout: elementLayout
                         })
                     }
@@ -137,7 +137,7 @@ export default class ConfigurableFormMaker {
 
             //for each collection, complete its list of child elements, converting the layouts as needed
             parentLayoutInfoList.forEach(parentLayoutInfo => {
-                parentLayoutInfo.makerElementInfo.completeChildListLayout(parentLayoutInfo.parentLayout,elementLayoutInfoList);
+                parentLayoutInfo.designerElementInfo.completeChildListLayout(parentLayoutInfo.parentLayout,elementLayoutInfoList);
             })
 
         }
@@ -162,8 +162,8 @@ export default class ConfigurableFormMaker {
         }
     }
 
-    /** This method returns the form layout for this element as it will appear in the maker as a child in a collection. */
-    getMakerElementLayout(formInfo,flags) {
+    /** This method returns the form layout for this element as it will appear in the designer as a child in a collection. */
+    getDesignerElementLayout(formInfo,flags) {
         let layout = [];
 
         try {
@@ -201,12 +201,12 @@ export default class ConfigurableFormMaker {
             layout.push(mainShowHide);
 
             //label
-            if(formInfo.makerFlags.indexOf("hasLabel") >= 0) {
+            if(formInfo.designerFlags.indexOf("hasLabel") >= 0) {
                 elementMainContent.push(LABEL_ELEMENT_CONFIG);
             }
 
             //entries
-            if(formInfo.makerFlags.indexOf("hasEntries") >= 0) {
+            if(formInfo.designerFlags.indexOf("hasEntries") >= 0) {
                 if(allowInputExpresssions) {
                     elementMainContent.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
                 }
@@ -226,7 +226,7 @@ export default class ConfigurableFormMaker {
             }
 
             //value - string format
-            if(formInfo.makerFlags.indexOf("valueString") >= 0) {
+            if(formInfo.designerFlags.indexOf("valueString") >= 0) {
                 if(allowInputExpresssions) {
                     elementMainContent.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
                 }
@@ -236,7 +236,7 @@ export default class ConfigurableFormMaker {
             }
 
             //value - json literal format
-            if(formInfo.makerFlags.indexOf("valueJson") >= 0) {
+            if(formInfo.designerFlags.indexOf("valueJson") >= 0) {
                 if(allowInputExpresssions) {
                     elementMainContent.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
                 }
@@ -246,7 +246,7 @@ export default class ConfigurableFormMaker {
             }
 
             //value - string or json literal format
-            if(formInfo.makerFlags.indexOf("valueStringOrJson") >= 0) {
+            if(formInfo.designerFlags.indexOf("valueStringOrJson") >= 0) {
                 if(allowInputExpresssions) {
                     elementMainContent.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
                 }
@@ -256,7 +256,7 @@ export default class ConfigurableFormMaker {
             }
 
             //value - boolean format
-            if(formInfo.makerFlags.indexOf("valueBoolean") >= 0) {
+            if(formInfo.designerFlags.indexOf("valueBoolean") >= 0) {
                 if(allowInputExpresssions) {
                     elementMainContent.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
@@ -266,9 +266,9 @@ export default class ConfigurableFormMaker {
             }
                 
             //additional options
-            let hasHint = (formInfo.makerFlags.indexOf("hasHint") >= 0);
-            let hasHelp = (formInfo.makerFlags.indexOf("hasHelp") >= 0);
-            let hasSelector = (formInfo.makerFlags.indexOf("hasSelector") >= 0);
+            let hasHint = (formInfo.designerFlags.indexOf("hasHint") >= 0);
+            let hasHelp = (formInfo.designerFlags.indexOf("hasHelp") >= 0);
+            let hasSelector = (formInfo.designerFlags.indexOf("hasSelector") >= 0);
 
             if((hasHint)||(hasHelp)||(hasSelector)) {
                 let additionalOptionsElement = {
@@ -290,12 +290,12 @@ export default class ConfigurableFormMaker {
                 elementMainContent.push(additionalOptionsElement);
             }
 
-            if(formInfo.makerFlags.indexOf("hasSubmit") >= 0) {
-                elementMainContent.push(SUBMIT_MAKER_LAYOUT);
+            if(formInfo.designerFlags.indexOf("hasSubmit") >= 0) {
+                elementMainContent.push(SUBMIT_DESIGNER_LAYOUT);
             }
 
             //key
-            if(formInfo.makerFlags.indexOf("hasKey") >= 0) {
+            if(formInfo.designerFlags.indexOf("hasKey") >= 0) {
                 layout.push(KEY_ELEMENT_CONFIG);
             }
         }
@@ -488,7 +488,7 @@ export default class ConfigurableFormMaker {
 }
 
 /** This is the added layout if there has a submit button. */
-const SUBMIT_MAKER_LAYOUT = {
+const SUBMIT_DESIGNER_LAYOUT = {
     "type": "panel",
     "formData": [
         {

@@ -436,7 +436,7 @@ const MAX_BUTTON_COUNT = 3;
 const DEFAULT_ADD_BUTTON_LABEL = null;
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 
@@ -477,7 +477,7 @@ const SIMPLE_FORM_INFO = {
         ],
         "key": "entryType"
     },
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"hasKey",
         "hasSelector"
@@ -487,17 +487,17 @@ const SIMPLE_FORM_INFO = {
 function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
     let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
     let contentLayout = contentLayoutElement.formData;
-    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.designerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
-        let formInfo = childLayoutInfo.makerElementInfo.formInfo;
+        let formInfo = childLayoutInfo.designerElementInfo.formInfo;
         return [formInfo.label,formInfo.uniqueKey];
     })
 
     //get the child layouts, with the selector added
     let childLayoutMap = {};
     childLayoutInfoList.forEach(childLayoutInfo => {
-        let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
+        let uniqueKey = childLayoutInfo.designerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
     let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryType"));
@@ -508,22 +508,22 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
     
 }
 
-const SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+const SIMPLE_DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formDesigner) {
     if(formResult.entryType) {
         elementConfig.entryType = {};
         elementConfig.entryType.label = formResult.entryType.label;
-        elementConfig.entryType.layout = formMaker.getElementLayout(formResult.entryType.value);
+        elementConfig.entryType.layout = formDesigner.getElementLayout(formResult.entryType.value);
     }
 }
 
 
 
-const SIMPLE_MAKER_ELEMENT_INFO = {
+const SIMPLE_DESIGNER_ELEMENT_INFO = {
     category: "collection",
     orderKey: "List - 1",
     formInfo: SIMPLE_FORM_INFO,
     completeChildListLayout: simpleListCompleteChildListLayout,
-    makerCustomProcessing: SIMPLE_MAKER_CUSTOM_PROCESSING_FUNCTION
+    designerCustomProcessing: SIMPLE_DESIGNER_CUSTOM_PROCESSING_FUNCTION
 }
 
 
@@ -571,7 +571,7 @@ const MULTI_ENTRY_FORM_INFO = {
         },
         "key": "entryTypes"
     },
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"hasKey",
         "hasSelector"
@@ -581,17 +581,17 @@ const MULTI_ENTRY_FORM_INFO = {
 function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
     let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
     let contentLayout = contentLayoutElement.formData;
-    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+    let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.designerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
-        let formInfo = childLayoutInfo.makerElementInfo.formInfo;
+        let formInfo = childLayoutInfo.designerElementInfo.formInfo;
         return [formInfo.label,formInfo.uniqueKey];
     })
 
     //get the child layouts, with the selector added
     let childLayoutMap = {};
     childLayoutInfoList.forEach(childLayoutInfo => {
-        let uniqueKey = childLayoutInfo.makerElementInfo.formInfo.uniqueKey;
+        let uniqueKey = childLayoutInfo.designerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
     let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryTypes"));
@@ -602,12 +602,12 @@ function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoLis
     
 }
 
-const MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+const MULTI_ENTRY_DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formDesigner) {
     if(formResult.entryTypes) {
         elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
             let entryType = {};
             entryType.label = formInfo.label;
-            entryType.layout = formMaker.getElementLayout(formInfo.value);
+            entryType.layout = formDesigner.getElementLayout(formInfo.value);
             return entryType;
         });
     }
@@ -615,20 +615,20 @@ const MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,element
 
 
 
-const MULTI_ENTRY_MAKER_ELEMENT_INFO = {
+const MULTI_ENTRY_DESIGNER_ELEMENT_INFO = {
     category: "collection",
     orderKey: "List - 2",
     formInfo: MULTI_ENTRY_FORM_INFO,
     completeChildListLayout: multiEntryListCompleteChildListLayout,
-    makerCustomProcessing: MULTI_ENTRY_MAKER_CUSTOM_PROCESSING_FUNCTION
+    designerCustomProcessing: MULTI_ENTRY_DESIGNER_CUSTOM_PROCESSING_FUNCTION
 }
 
 
-ListElement.MAKER_ELEMENT_ARRAY = [SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_ELEMENT_INFO];
+ListElement.DESIGNER_ELEMENT_ARRAY = [SIMPLE_DESIGNER_ELEMENT_INFO,MULTI_ENTRY_DESIGNER_ELEMENT_INFO];
 
 
 //=======================================================
-//old list maker info
+//old list designer info
 //=======================================================
 
 // const FORM_INFO = {
@@ -674,14 +674,14 @@ ListElement.MAKER_ELEMENT_ARRAY = [SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_E
 // 			"type": "radioButtonGroup"
 // 		}
 // 	],
-// 	"makerFlags": [
+// 	"designerFlags": [
 // 		"hasLabel",
 // 		"hasKey",
 //         "hasSelector"
 // 	]
 // }
 
-// const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formMaker) {
+// const DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig,formDesigner) {
 //     if(formResult.listType == "single") {
 //         let entryTypes = elementConfig.entryTypes;
 //         delete elementConfig.entryTypes;
@@ -693,7 +693,7 @@ ListElement.MAKER_ELEMENT_ARRAY = [SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_E
 //         elementConfig.entryTypes = formResult.entryTypes.map(formInfo => {
 //             let entryType = {};
 //             if(formInfo.value._listButtonText) entryType.label = formInfo.value._listButtonText;
-//             entryType.layout = formMaker.getElementLayout(formInfo.value);
+//             entryType.layout = formDesigner.getElementLayout(formInfo.value);
 //             return entryType;
 //         });
 //     }
@@ -704,24 +704,24 @@ ListElement.MAKER_ELEMENT_ARRAY = [SIMPLE_MAKER_ELEMENT_INFO,MULTI_ENTRY_MAKER_E
 // function completeChildListLayout(parentLayout,elementLayoutInfoList) {
 //     let childLayoutEntry = parentLayout.find(layout => (layout.key == "entryTypes"))
 //     childLayoutEntry.entryTypes = elementLayoutInfoList
-//         .filter(elementLayoutInfo => (elementLayoutInfo.makerElementInfo.category != "layout"))
+//         .filter(elementLayoutInfo => (elementLayoutInfo.designerElementInfo.category != "layout"))
 //         .map(elementLayoutInfo => {
 //             return {
-//                 label: elementLayoutInfo.makerElementInfo.formInfo.label,
+//                 label: elementLayoutInfo.designerElementInfo.formInfo.label,
 //                 layout: {
 //                     type: "panel",
-//                     key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
+//                     key: elementLayoutInfo.designerElementInfo.formInfo.uniqueKey,
 //                     formData: elementLayoutInfo.elementLayout.concat(CHILD_LAYOUT_ADDITION)
 //                 } 
 //             }
 //         });
 // }
 
-// const MAKER_ELEMENT_INFO = {
+// const DESIGNER_ELEMENT_INFO = {
 //     category: "collection",
 //     orderKey: FORM_INFO.label,
 //     formInfo: FORM_INFO,
-//     makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+//     designerCustomProcessing: DESIGNER_CUSTOM_PROCESSING_FUNCTION,
 //     completeChildListLayout: completeChildListLayout
 // }
 

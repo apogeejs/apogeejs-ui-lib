@@ -91,7 +91,7 @@ export default class SliderElement extends ConfigurableElement {
 SliderElement.TYPE_NAME = "slider";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const NO_EXPRESSION_FORM_INFO = {
@@ -121,7 +121,7 @@ const NO_EXPRESSION_FORM_INFO = {
 			"key": "customLayout"
 		}
 	],
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"valueJson",
 		"hasKey",
@@ -230,7 +230,7 @@ const EXPRESSION_FORM_INFO = {
 			"key": "customLayout"
 		}
 	],
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"valueJson",
 		"hasKey",
@@ -240,7 +240,7 @@ const EXPRESSION_FORM_INFO = {
 	]
 }
 
-const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
+const DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     if((formResult.customLayout)&&(formResult.customLayout.min)) {
         if(formResult.customLayout.minType == "simple") {
             elementConfig.min = formResult.customLayout.min;
@@ -268,27 +268,27 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
 }
 
 
-const NO_EXPRESSION_MAKER_ELEMENT_INFO = {
+const NO_EXPRESSION_DESIGNER_ELEMENT_INFO = {
 	category: "element",
 	flags : {
 		"inputExpression": [undefined,false]
 	},
     orderKey: NO_EXPRESSION_FORM_INFO.label,
     formInfo: NO_EXPRESSION_FORM_INFO,
-	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
+	designerCustomProcessing: DESIGNER_CUSTOM_PROCESSING_FUNCTION
 }
 
-const EXPRESSION_MAKER_ELEMENT_INFO = {
+const EXPRESSION_DESIGNER_ELEMENT_INFO = {
 	category: "element",
 	flags : {
 		"inputExpression": [true]
 	},
     orderKey: EXPRESSION_FORM_INFO.label,
     formInfo: EXPRESSION_FORM_INFO,
-	makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION
+	designerCustomProcessing: DESIGNER_CUSTOM_PROCESSING_FUNCTION
 }
 
-SliderElement.MAKER_ELEMENT_ARRAY = [
-	NO_EXPRESSION_MAKER_ELEMENT_INFO,
-	EXPRESSION_MAKER_ELEMENT_INFO
+SliderElement.DESIGNER_ELEMENT_ARRAY = [
+	NO_EXPRESSION_DESIGNER_ELEMENT_INFO,
+	EXPRESSION_DESIGNER_ELEMENT_INFO
 ];

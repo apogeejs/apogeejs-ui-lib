@@ -120,7 +120,7 @@ export default class ShowHideLayout extends ConfigurableLayoutContainer {
 ShowHideLayout.TYPE_NAME = "showHideLayout";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const FORM_INFO = {
@@ -164,10 +164,10 @@ const FORM_INFO = {
 			"key": "customLayout"
 		}
 	],
-	"makerFlags": []
+	"designerFlags": []
 }
 
-const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
+const DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     let customLayoutResult = formResult.customLayout;
     if(customLayoutResult) {
         if(customLayoutResult.heading) {
@@ -182,13 +182,13 @@ const MAKER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
     }
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "layout",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
-    makerCustomProcessing: MAKER_CUSTOM_PROCESSING_FUNCTION,
+    designerCustomProcessing: DESIGNER_CUSTOM_PROCESSING_FUNCTION,
     completeChildListLayout: basicCompleteChildListLayout
 }
 
-ShowHideLayout.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+ShowHideLayout.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
 

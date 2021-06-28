@@ -106,7 +106,7 @@ export default class PanelElement extends ConfigurableElement {
 PanelElement.TYPE_NAME = "panel";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 /** This is the child layout template used by the Panel Element. This will be 
@@ -124,10 +124,10 @@ export function basicCompleteChildListLayout(parentLayout,elementLayoutInfoList)
     let childLayoutEntry = contentLayout.find(layout => (layout.key == "formData"))
     childLayoutEntry.entryTypes = elementLayoutInfoList.map(elementLayoutInfo => {
         return {
-            label: elementLayoutInfo.makerElementInfo.formInfo.label,
+            label: elementLayoutInfo.designerElementInfo.formInfo.label,
             layout: {
                 type: "panel",
-                key: elementLayoutInfo.makerElementInfo.formInfo.uniqueKey,
+                key: elementLayoutInfo.designerElementInfo.formInfo.uniqueKey,
                 formData: elementLayoutInfo.elementLayout
             }
         }
@@ -135,27 +135,27 @@ export function basicCompleteChildListLayout(parentLayout,elementLayoutInfoList)
 }
 
 
-//internal form maker data
+//internal form designer data
 
 const FORM_INFO = {
     "uniqueKey": "basicPanel",
 	"type": "panel",
 	"label": "Panel",
-	"makerFlags": [
+	"designerFlags": [
 		"hasKey",
         "hasSelector"
 	],
     "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "collection",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO,
     completeChildListLayout: basicCompleteChildListLayout 
 }
 
-PanelElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+PanelElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
 
 
 

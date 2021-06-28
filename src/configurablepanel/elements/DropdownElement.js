@@ -108,14 +108,14 @@ export default class DropdownElement extends ConfigurableElement {
 DropdownElement.TYPE_NAME = "dropdown";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const FORM_INFO = {
     "uniqueKey": "basicDropdown",
 	"type": "dropdown",
 	"label": "Dropdown",
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"hasEntries",
 		"valueStringOrJson",
@@ -126,12 +126,12 @@ const FORM_INFO = {
 	]
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "element",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
 
-DropdownElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+DropdownElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
 
 

@@ -82,14 +82,14 @@ export default class CheckboxElement extends ConfigurableElement {
 CheckboxElement.TYPE_NAME = "checkbox";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const FORM_INFO = {
     "uniqueKey": "basicCheckbox",
 	"type": "checkbox",
 	"label": "Checkbox",
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"valueBoolean",
 		"hasKey",
@@ -99,11 +99,11 @@ const FORM_INFO = {
 	]
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "element",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
 
-CheckboxElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+CheckboxElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
 

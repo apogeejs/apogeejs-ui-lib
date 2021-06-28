@@ -41,23 +41,23 @@ export default class InvisibleElement extends ConfigurableElement {
 InvisibleElement.TYPE_NAME = "invisible";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const FORM_INFO = {
     "uniqueKey": "basicInvisible",
 	"type": "invisible",
 	"label": "Invisible Element",
-	"makerFlags": [
+	"designerFlags": [
 		"valueStringOrJson",
 		"hasKey"
 	]
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "element",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
 
-InvisibleElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+InvisibleElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];

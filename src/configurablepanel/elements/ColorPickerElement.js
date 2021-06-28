@@ -77,14 +77,14 @@ export default class ColorPickerElement extends ConfigurableElement {
 ColorPickerElement.TYPE_NAME = "colorPicker";
 
 //------------------------
-// Form Maker Data
+// Form Designer Data
 //------------------------
 
 const FORM_INFO = {
     "uniqueKey": "basicColorPicker",
 	"type": "colorPicker",
 	"label": "Color Picker",
-	"makerFlags": [
+	"designerFlags": [
 		"hasLabel",
 		"valueString",
 		"hasKey",
@@ -94,11 +94,11 @@ const FORM_INFO = {
 	]
 }
 
-const MAKER_ELEMENT_INFO = {
+const DESIGNER_ELEMENT_INFO = {
     category: "element",
     orderKey: FORM_INFO.label,
     formInfo: FORM_INFO
 }
 
-ColorPickerElement.MAKER_ELEMENT_ARRAY = [MAKER_ELEMENT_INFO];
+ColorPickerElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
 
