@@ -179,7 +179,7 @@ export default class ListElement extends ConfigurableElement {
                         if((valueEntry.key !== undefined)&&(valueEntry.value != undefined)) {
                             let entryTypeJson = this._lookupEntryTypeJson(valueEntry.key);
                             if(entryTypeJson) {
-                                this._insertElement(entryTypeJson,valueEntry.value);
+                                this._insertElement(entryTypeJson,false,valueEntry.value);
                             }
                             else {
                                 console.log("List Entry key not found: " + valueEntry.key);
@@ -192,7 +192,7 @@ export default class ListElement extends ConfigurableElement {
                     else {
                         let entryTypeJson = this.entryTypes[0];
                         if(entryTypeJson) {
-                            this._insertElement(entryTypeJson,valueEntry);
+                            this._insertElement(entryTypeJson,false,valueEntry);
                         }
                         else {
                             console.log("NO entry type set!");
@@ -253,7 +253,7 @@ export default class ListElement extends ConfigurableElement {
                 let labelText = entryTypeJson.label ? "+ "+ entryTypeJson.label : "+";
                 addButton.innerHTML = labelText;
                 addButton.onclick = () => {
-                    this._insertElement(entryTypeJson);
+                    this._insertElement(entryTypeJson,true);
                     this.inputDone();
                 }
                 headElement.appendChild(addButton);
@@ -268,7 +268,7 @@ export default class ListElement extends ConfigurableElement {
             addButton.innerHTML = this.addButtonLabel ? "+ "+ this.addButtonLabel : "+";
             addButton.onclick = () => {
                 let entryTypeJson = this.entryTypes[entryTypeDropdown.selectedIndex];
-                this._insertElement(entryTypeJson);
+                this._insertElement(entryTypeJson,true);
                 this.inputDone();
             }
             headElement.appendChild(addButton);
@@ -282,7 +282,7 @@ export default class ListElement extends ConfigurableElement {
         }
     }
 
-    _insertElement(entryTypeJson,optionalValue) {
+    _insertElement(entryTypeJson,focusOnElement,optionalValue) {
         let listEntryData = this._createListEntryData(entryTypeJson);
         this.listEntries.push(listEntryData);
         this.elementContainer.appendChild(listEntryData.element);
@@ -303,10 +303,14 @@ export default class ListElement extends ConfigurableElement {
         //add the change listener for this element
         listEntryData.elementObject.addOnChange( () => this.valueChanged());
         listEntryData.elementObject.addOnInput( () => this.inputDone());
+
+        //give focus to item if requested
+        if(focusOnElement) {
+            listEntryData.elementObject.giveFocus();
+        }
         
         //nofityof value change
         this.valueChanged();
-        
     }
 
     _createListEntryData(entryTypeJson) {
@@ -471,7 +475,7 @@ const SIMPLE_FORM_INFO = {
                 "type": "dropdown",
                 "label": "Type: ",
                 "value": "basicPanel",
-                "key": "key",
+                "key": "key"
             },
             {
                 "type": "custom",
@@ -496,9 +500,9 @@ const SIMPLE_FORM_INFO = {
 	]
 }
 
-function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
-    let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
-    let contentLayout = contentLayoutElement.formData;
+function simpleListCompleteChildListLayout(childLayoutEntry,elementLayoutInfoList) {
+    // let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
+    // let contentLayout = contentLayoutElement.formData;
     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.designerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
@@ -512,7 +516,7 @@ function simpleListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
         let uniqueKey = childLayoutInfo.designerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
-    let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryType"));
+    //let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryType"));
     let selectEntry = childLayoutEntry.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.formData.find(layout => (layout.type == "custom"));
@@ -606,9 +610,9 @@ const MULTI_ENTRY_FORM_INFO = {
 	]
 }
 
-function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoList) {
-    let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
-    let contentLayout = contentLayoutElement.formData;
+function multiEntryListCompleteChildListLayout(childLayoutEntry,elementLayoutInfoList) {
+    // let contentLayoutElement = parentLayout.find(layout => (layout.type == "showHideLayout"));
+    // let contentLayout = contentLayoutElement.formData;
     let childLayoutInfoList = elementLayoutInfoList.filter(elementLayoutInfo => (elementLayoutInfo.designerElementInfo.category != "layout"))
     //create the selection list for the dropdown
     let dropdownEntries = childLayoutInfoList.map(childLayoutInfo => {
@@ -622,7 +626,7 @@ function multiEntryListCompleteChildListLayout(parentLayout,elementLayoutInfoLis
         let uniqueKey = childLayoutInfo.designerElementInfo.formInfo.uniqueKey;
         childLayoutMap[uniqueKey] = childLayoutInfo.elementLayout;
     })
-    let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryTypes"));
+    //let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryTypes"));
     let selectEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
     let entryTypeEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "custom"));

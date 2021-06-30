@@ -377,19 +377,26 @@ export default class ConfigurablePanel {
      */
     static _getOrderKey(designerElementInfo) {
         let orderPrefix;
+        let orderBody;
         switch(designerElementInfo.category) {
             case "layout":
                 orderPrefix = 3;
                 break;
             case "collection":
-                orderPrefix = 2;
+                if(designerElementInfo.isTopLevelLayout) orderPrefix = 4; //these won't be shown anyway 
+                else orderPrefix = 2;
                 break;
             case "element": 
             default:
                 orderPrefix = 1;
                 break;
         }
-        return orderPrefix + (designerElementInfo.orderKey ? designerElementInfo.orderKey : designerElementInfo.formInfo.label).toLowerCase();
+
+        if(designerElementInfo.orderKey) orderBody = designerElementInfo.orderBody;
+        else if(designerElementInfo.formInfo.label) orderBody = designerElementInfo.orderBody;
+        else orderBody = designerElementInfo.uniqueKey;
+
+        return orderPrefix + "|" + orderBody;
     }
 
     static getFormDesignerLayout(formDesignerFlags) {
@@ -445,8 +452,10 @@ ConfigurablePanel.configurableFormDesigner = null;
 const DATA_FORM_INFO = {
     "uniqueKey": "topLevelDataPanel",
 	"type": "panel",
-	"label": "Panel",
-	"designerFlags": [],
+	"label": "Form Designer",
+	"designerFlags": [
+        "supressShowHide"
+    ],
     "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE
 }
 
@@ -464,8 +473,9 @@ const DATA_DESIGNER_ELEMENT_INFO = {
 const ACTION_FORM_INFO = {
     "uniqueKey": "topLevelDataPanel",
 	"type": "panel",
-	"label": "Panel",
+	"label": "Form Designer",
 	"designerFlags": [
+        "supressShowHide",
         "hasSubmit"
     ],
     "childLayoutTemplate": BASIC_CHILD_LAYOUT_TEMPLATE

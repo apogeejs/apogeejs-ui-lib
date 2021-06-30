@@ -113,7 +113,8 @@ export default class ConfigurableFormDesigner {
                 if(this.getFlagsValid(designerElementInfo,flags)) {
 
                     //this is the layout of an element as it appears in the form designer
-                    let elementLayout = this.getDesignerElementLayout(designerElementInfo.formInfo,flags);
+                    //childLayoutEntry only relevent for parent elements
+                    let {elementLayout, childLayoutEntry} = this.getDesignerElementLayout(designerElementInfo.formInfo,flags);
 
                     if(designerElementInfo.isTopLevelLayout) {
                         topLevelLayout = elementLayout;
@@ -125,11 +126,11 @@ export default class ConfigurableFormDesigner {
                         });
                     }
 
-                    //save any parent elements, for additional processing
+                    //for the parent elements, save the contained child element for future processing
                     if((designerElementInfo.category == "collection")||(designerElementInfo.category == "layout")) {
                         parentLayoutInfoList.push({
                             designerElementInfo:designerElementInfo,
-                            parentLayout: elementLayout
+                            childLayoutEntry: childLayoutEntry
                         })
                     }
                 }
@@ -137,7 +138,7 @@ export default class ConfigurableFormDesigner {
 
             //for each collection, complete its list of child elements, converting the layouts as needed
             parentLayoutInfoList.forEach(parentLayoutInfo => {
-                parentLayoutInfo.designerElementInfo.completeChildListLayout(parentLayoutInfo.parentLayout,elementLayoutInfoList);
+                parentLayoutInfo.designerElementInfo.completeChildListLayout(parentLayoutInfo.childLayoutEntry,elementLayoutInfoList);
             })
 
         }
@@ -164,114 +165,122 @@ export default class ConfigurableFormDesigner {
 
     /** This method returns the form layout for this element as it will appear in the designer as a child in a collection. */
     getDesignerElementLayout(formInfo,flags) {
-        let layout = [];
+        let elementLayout = [];
+        let childLayoutEntry;
 
         try {
 
             let allowInputExpresssions = flags.inputExpressions ? true : false;
 
             //store the element tpe
-            layout.push({
+            elementLayout.push({
                 type: "invisible",
                 value: formInfo.uniqueKey,
                 key: "uniqueKey"
             });
 
             //type field - always
-            layout.push({
+            elementLayout.push({
                 type: "invisible",
                 value: formInfo.type,
                 key: "type"
             });
                 
-            // //heading
-            // layout.push({
-            //     type: "heading",
-            //     text: formInfo.label
-            // });
-            //heading alternative
-            //element label
-            let mainShowHide = {
-                type: "showHideLayout",
-                heading: formInfo.label,
-                closed: false,
-                formData: []
-            };
-            let elementMainContent = mainShowHide.formData;
-            layout.push(mainShowHide);
+            //heading/show hide
+            let elementContentLayout;
+            if(formInfo.designerFlags.indexOf("supressShowHide") >= 0) {
+                //this element has not heading 
+                elementContentLayout = elementLayout;
+                elementContentLayout.push({
+                    type: "heading",
+                    text: formInfo.label
+                });
+            }
+            else {
+                //show a heading for the element
+                let mainShowHide = {
+                    type: "showHideLayout",
+                    heading: formInfo.label,
+                    closed: false,
+                    formData: []
+                };
+                elementContentLayout = mainShowHide.formData;
+                elementLayout.push(mainShowHide);
+            }   
 
             //label
             if(formInfo.designerFlags.indexOf("hasLabel") >= 0) {
-                elementMainContent.push(LABEL_ELEMENT_CONFIG);
+                elementContentLayout.push(LABEL_ELEMENT_CONFIG);
             }
 
             //entries
             if(formInfo.designerFlags.indexOf("hasEntries") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
+                    elementContentLayout.push(COMPILED_ENTRIES_ELEMENTS_CONFIG);
                 }
                 else {
-                    elementMainContent.push(ENTRIES_ELEMENTS_CONFIG);
+                    elementContentLayout.push(ENTRIES_ELEMENTS_CONFIG);
                 }
             }
 
             //element specific layout
             if(formInfo.customLayout) {
-                elementMainContent.push(...formInfo.customLayout);
+                elementContentLayout.push(...formInfo.customLayout);
             }
 
             //children - add the child list if we have one for this element (for collections only)
             if(formInfo.childLayoutTemplate) {
-                elementMainContent.push(apogeeutil._.cloneDeep(formInfo.childLayoutTemplate));
+                childLayoutEntry = apogeeutil._.cloneDeep(formInfo.childLayoutTemplate);
+                elementContentLayout.push(childLayoutEntry);
             }
 
             //value - string format
             if(formInfo.designerFlags.indexOf("valueString") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
+                    elementContentLayout.push(COMPILED_VALUE_STRING_ELEMENT_CONFIG);
                 }
                 else {
-                    elementMainContent.push(VALUE_STRING_ELEMENT_CONFIG);
+                    elementContentLayout.push(VALUE_STRING_ELEMENT_CONFIG);
                 }
             }
 
             //value - json literal format
             if(formInfo.designerFlags.indexOf("valueJson") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
+                    elementContentLayout.push(COMPILED_VALUE_JSON_ELEMENT_CONFIG);
                 }
                 else {
-                    elementMainContent.push(VALUE_JSON_ELEMENT_CONFIG);
+                    elementContentLayout.push(VALUE_JSON_ELEMENT_CONFIG);
                 }
             }
 
             //value - string or json literal format
             if(formInfo.designerFlags.indexOf("valueStringOrJson") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
+                    elementContentLayout.push(COMPILED_VALUE_EITHER_ELEMENT_CONFIG);
                 }
                 else {
-                    elementMainContent.push(VALUE_EITHER_ELEMENT_CONFIG);
+                    elementContentLayout.push(VALUE_EITHER_ELEMENT_CONFIG);
                 }
             }
 
             //value - boolean format
             if(formInfo.designerFlags.indexOf("valueBoolean") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
+                    elementContentLayout.push(COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
                 else {
-                    elementMainContent.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
+                    elementContentLayout.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
             }
 
             //value - array format
             if(formInfo.designerFlags.indexOf("valueArray") >= 0) {
                 if(allowInputExpresssions) {
-                    elementMainContent.push(COMPILED_VALUE_ARRAY_ELEMENT_CONFIG);
+                    elementContentLayout.push(COMPILED_VALUE_ARRAY_ELEMENT_CONFIG);
                 }
                 else {
-                    elementMainContent.push(VALUE_ARRAY_ELEMENT_CONFIG);
+                    elementContentLayout.push(VALUE_ARRAY_ELEMENT_CONFIG);
                 }
             }
                 
@@ -301,25 +310,25 @@ export default class ConfigurableFormDesigner {
                     additionalOptionsElement.formData.push(...SELECTOR_ELEMENT_CONFIG_LIST);
                 }
 
-                elementMainContent.push(additionalOptionsElement);
+                elementContentLayout.push(additionalOptionsElement);
             }
 
             if(formInfo.designerFlags.indexOf("hasSubmit") >= 0) {
-                elementMainContent.push(SUBMIT_DESIGNER_LAYOUT);
+                elementContentLayout.push(SUBMIT_DESIGNER_LAYOUT);
             }
 
             //key
             if(formInfo.designerFlags.indexOf("hasKey") >= 0) {
-                layout.push(KEY_ELEMENT_CONFIG);
+                elementLayout.push(KEY_ELEMENT_CONFIG);
             }
         }
         catch(error) {
             if(error.stack) console.error(error.stack);
             let errorLayout = this.getErrorElementLayout("Error making element: " + error.toString());
-            layout.push(errorLayout);
+            elementLayout.push(errorLayout);
         }
             
-        return layout;
+        return {elementLayout,childLayoutEntry};
     }
 
     getElementLayout(elementFormResult) {
