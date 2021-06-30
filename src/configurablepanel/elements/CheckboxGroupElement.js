@@ -187,7 +187,7 @@ const FORM_INFO = {
 	"designerFlags": [
 		"hasLabel",
 		"hasEntries",
-		"valueJson",
+		"valueArray",
 		"hasKey",
 		"hasHint",
 		"hasHelp",

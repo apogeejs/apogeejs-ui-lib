@@ -55,7 +55,17 @@ export default class ListElement extends ConfigurableElement {
 
         this._insertControlElements(headElement);
         
-        //ADD HINT AND HELP???
+        //hint
+        let hintElement = this.getHintElement(elementInitData);
+        if(hintElement) {
+            headElement.appendChild(hintElement);
+        }
+
+        //help element
+        let helpElement = this.getHelpElement(elementInitData);
+        if(helpElement) {
+            headElement.appendChild(helpElement);
+        }
 
         
         //list entry container
@@ -454,7 +464,7 @@ const SIMPLE_FORM_INFO = {
             },
             {
                 "type": "textField",
-                "label": "Button Text: ",
+                "label": "'Add' Label: ",
                 "key": "label"
             },
             {
@@ -480,7 +490,9 @@ const SIMPLE_FORM_INFO = {
 	"designerFlags": [
 		"hasLabel",
 		"hasKey",
-        "hasSelector"
+        "hasSelector",
+        "hasHint",
+        "hasHelp"
 	]
 }
 
@@ -545,7 +557,7 @@ const MULTI_ENTRY_FORM_INFO = {
                     },
                     {
                         "type": "textField",
-                        "label": "Button Text: ",
+                        "label": "'Add' Label: ",
                         "key": "label"
                     },
                     {
@@ -564,17 +576,33 @@ const MULTI_ENTRY_FORM_INFO = {
                                 childElement.setChildKey(parentElement.getValue());
                             }
                         }
-                    },
+                    }
                 ],
                 "key": "entry"
             },
         },
         "key": "entryTypes"
     },
+    "optionsCustomLayout": [ //NOTE - a common practice is to use a panel to avoid collision of entries. I did not do that here.
+        {
+            "type": "textField",
+            "label": "Max 'Add' Buttons: ",
+            "key": "maxButtonCount",
+            "hint": "optional"
+        },
+        {
+            "type": "textField",
+            "label": "Common 'Add' Label: ",
+            "key": "addButtonLabel",
+            "hint": "optional - used only max add buttons exceeded"
+        }
+    ],
 	"designerFlags": [
 		"hasLabel",
 		"hasKey",
-        "hasSelector"
+        "hasSelector",
+        "hasHint",
+        "hasHelp"
 	]
 }
 
@@ -610,6 +638,12 @@ const MULTI_ENTRY_DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elem
             entryType.layout = formDesigner.getElementLayout(formInfo.value);
             return entryType;
         });
+    }
+    if((formResult.maxButtonCount !== undefined)&&(formResult.maxButtonCount !== "")) {
+        elementConfig.maxButtonCount = JSON.parse(formResult.maxButtonCount);
+    }
+    if((formResult.addButtonLabel !== undefined)&&(formResult.addButtonLabel !== "")) {
+        elementConfig.addButtonLabel = formResult.addButtonLabel;
     }
 }
 

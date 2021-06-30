@@ -264,18 +264,32 @@ export default class ConfigurableFormDesigner {
                     elementMainContent.push(VALUE_BOOLEAN_ELEMENT_CONFIG);
                 }
             }
+
+            //value - array format
+            if(formInfo.designerFlags.indexOf("valueArray") >= 0) {
+                if(allowInputExpresssions) {
+                    elementMainContent.push(COMPILED_VALUE_ARRAY_ELEMENT_CONFIG);
+                }
+                else {
+                    elementMainContent.push(VALUE_ARRAY_ELEMENT_CONFIG);
+                }
+            }
                 
             //additional options
             let hasHint = (formInfo.designerFlags.indexOf("hasHint") >= 0);
             let hasHelp = (formInfo.designerFlags.indexOf("hasHelp") >= 0);
             let hasSelector = (formInfo.designerFlags.indexOf("hasSelector") >= 0);
+            let hasOptionsCustomLayout = (formInfo.optionsCustomLayout !== undefined);
 
-            if((hasHint)||(hasHelp)||(hasSelector)) {
+            if((hasHint)||(hasHelp)||(hasSelector)||(hasOptionsCustomLayout)) {
                 let additionalOptionsElement = {
                     type: "showHideLayout",
                     heading: "More Options",
                     closed: true,
                     formData: []
+                }
+                if(hasOptionsCustomLayout) {
+                    additionalOptionsElement.formData.push(...formInfo.optionsCustomLayout);
                 }
                 if(hasHint) {
                     additionalOptionsElement.formData.push(HINT_ELEMENT_CONFIG);
@@ -331,14 +345,26 @@ export default class ConfigurableFormDesigner {
             //---------------
             //process entries
             //---------------
-            if(elementFormResult.entriesStringified !== undefined) {
-                if(elementFormResult.entriesStringified !== "") {
-                    elementConfig.entries = JSON.parse(elementFormResult.entriesStringified);
-                }
-                else {
-                    //set to an empty entry list by default
-                    elementConfig.entries = [];
-                }
+
+            if(elementFormResult.entriesList !== undefined) {
+                elementConfig.entries = elementFormResult.entriesList.map(entry => {
+                    let value;
+                    let valueEntry;
+                    if(entry.valueType == "json") {
+                        value = JSON.parse(entry.valueMixed);
+                    }
+                    else {
+                        //entryType string or reference
+                        value = entry.valueMixed;
+                    }
+                    if(entry.displayLabel) {
+                        valueEntry = [entry.displayLabel,value];
+                    }
+                    else {
+                        valueEntry = value;
+                    }
+                    return valueEntry;
+                })
             }
             
             if(elementFormResult.entries !== undefined) {
@@ -376,6 +402,17 @@ export default class ConfigurableFormDesigner {
                 else if(elementFormResult.valueType == "json") {
                     elementConfig.value = JSON.parse(elementFormResult.valueMixed);
                 }
+            }
+            if(elementFormResult.valueArray !== undefined) {
+                elementConfig.value = elementFormResult.valueArray.map(entry => {
+                    if((entry.valueType == "string")||(entry.valueType == "expressionReference")) {
+                        return entry.valueMixed;
+                    }
+                    else if(entry.valueType == "json") {
+                        return JSON.parse(entry.valueMixed);
+                    }
+                })
+                
             }
 
             //-------------------
@@ -561,21 +598,96 @@ const LABEL_ELEMENT_CONFIG = {
 }
 
 const ENTRIES_ELEMENTS_CONFIG = {
-	type: "textField",
+	type: "list",
 	label: "Entries: ",
-	key: "entriesStringified",
-	hint: "required, array of values (use quotes on strings)"
+    entryType: {
+        label: "Entry",
+        layout: {
+            type: "panel",
+            formData: [
+                {
+                    type: "horizontalLayout",
+                    formData: [
+                        {
+                            type: "textField",
+                            label: "Value: ",
+                            key: "valueMixed"
+                        },
+                        {
+                            type: "radioButtonGroup",
+                            label: "Value Type: ",
+                            entries: [["String","string"],["Non-String","json"]],
+                            key: "valueType",
+                            hint: "optional"
+                        }
+                    ]
+                },
+                {
+                    type: "textField",
+                    label: "Display Label: ",
+                    key: "displayLabel",
+                    hint: "optional, defaults to value"
+                }
+
+            ],
+            key: "entry"
+        },
+        key: "entriesList"
+    },
+	key: "entriesList",
+	hint: "required"
 }
 
 const COMPILED_ENTRIES_ELEMENTS_CONFIG = {
     type: "horizontalLayout",
     formData: [
         {
-            type: "textarea",
+            type: "list",
             label: "Entries: ",
-            rows: 3,
-            cols: 75,
-            key: "entriesStringified",
+            entryType: {
+                label: "Entry",
+                layout: {
+                    type: "panel",
+                    formData: [
+                        {
+                            type: "horizontalLayout",
+                            formData: [
+                                {
+                                    type: "textField",
+                                    label: "Value: ",
+                                    key: "valueMixed",
+                                    meta: {
+                                        expression: "choice",
+                                        expressionChoiceKey: "valueType",
+                                        expressionChoiceMap: {
+                                            "string": "value",
+                                            "json": "value",
+                                            "expressionReference": "reference"
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "radioButtonGroup",
+                                    label: "Value Type: ",
+                                    entries: [["String","string"],["Non-String","json"],["Reference","expressionReference"]],
+                                    value: "string",
+                                    key: "valueType"
+                                }
+                            ]
+                        },
+                        {
+                            type: "textField",
+                            label: "Display Label: ",
+                            key: "displayLabel",
+                            hint: "optional, defaults to value"
+                        }
+        
+                    ],
+                    key: "entry"
+                },
+                key: "entriesList"
+            },
+            key: "entriesList",
             hint: "required",
             selector: {
                 parentKey: "entriesType",
@@ -749,6 +861,113 @@ const COMPILED_VALUE_BOOLEAN_ELEMENT_CONFIG = {
             entries: [["Value","value"],["Reference","reference"]],
             value: "value",
             key: "entriesType"
+        }
+    ]
+}
+
+
+const VALUE_ARRAY_ELEMENT_CONFIG = {
+	type: "list",
+	label: "Initial Array Value: ",
+    entryType: {
+        label: "Entry",
+        layout: {
+            type: "panel",
+            formData: [
+                {
+                    type: "horizontalLayout",
+                    formData: [
+                        {
+                            type: "textField",
+                            label: "Value: ",
+                            key: "valueMixed"
+                        },
+                        {
+                            type: "radioButtonGroup",
+                            label: "Value Type: ",
+                            entries: [["String","string"],["Non-String","json"]],
+                            key: "valueType",
+                            hint: "optional"
+                        }
+                    ]
+                }
+            ],
+            key: "entry"
+        },
+        key: "valueArray"
+    },
+	key: "valueArray",
+	hint: "optional"
+}
+
+const COMPILED_VALUE_ARRAY_ELEMENT_CONFIG = {
+    type: "horizontalLayout",
+    formData: [
+        {
+            type: "list",
+            label: "Initial Array Value: ",
+            entryType: {
+                label: "Entry",
+                layout: {
+                    type: "panel",
+                    formData: [
+                        {
+                            type: "horizontalLayout",
+                            formData: [
+                                {
+                                    type: "textField",
+                                    label: "Value: ",
+                                    key: "valueMixed",
+                                    meta: {
+                                        expression: "choice",
+                                        expressionChoiceKey: "valueType",
+                                        expressionChoiceMap: {
+                                            "string": "value",
+                                            "json": "value",
+                                            "expressionReference": "reference"
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "radioButtonGroup",
+                                    label: "Value Type: ",
+                                    entries: [["String","string"],["Non-String","json"],["Reference","expressionReference"]],
+                                    value: "string",
+                                    key: "valueType"
+                                }
+                            ]
+                        }       
+                    ],
+                    key: "entry"
+                },
+                key: "valueArray"
+            },
+            key: "valueArray",
+            hint: "optional",
+            selector: {
+                parentKey: "valueType",
+                parentValue: "value"
+            }
+        },
+        {
+            type: "textField",
+            label: "Initial Value Array: ",
+            size: 50,
+            key: "value",
+            hint: "optional",
+            selector: {
+                parentKey: "valueType",
+                parentValue: "reference"
+            },
+            meta: {
+                expression: "reference",
+            }
+        },
+        {
+            type: "radioButtonGroup",
+            entries: [["Value","value"],["Reference","reference"]],
+            value: "value",
+            key: "valueType"
         }
     ]
 }
