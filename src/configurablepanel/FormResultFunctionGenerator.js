@@ -146,7 +146,7 @@ export default class FormResultFunctionGenerator {
     }
 
     /** This laods a value to the function body for a reference expression. This means the value should be
-     * then name of a variable, such as a table name por a table name dot one of its fields.
+     * then name of a variable, such as a member name por a member name dot one of its fields.
      */
     _loadReferenceExpressionEntry(assigneeName,value) {
         //this shouldn't happen, the input should be a string
@@ -213,11 +213,11 @@ export default class FormResultFunctionGenerator {
 
 }
 
-/** This test a general qualified variable name. There is no provision for excluded table names. 
+/** This test a general qualified variable name. There is no provision for excluded member names. 
  * @private */
  const QUALFIED_NAME_PATTERN = /([a-zA-Z_$][0-9a-zA-Z_$]*)+(\.+[a-zA-Z_$][0-9a-zA-Z_$]*)*/;
  
- /** This tests a general qualified variable name (meaning it can include dots). There is no provision for excluded table names. 
+ /** This tests a general qualified variable name (meaning it can include dots). There is no provision for excluded member names. 
   * The return value is true or false */
 function isValidQualifiedVariableName(variableName) {
      let nameResult = QUALFIED_NAME_PATTERN.exec(variableName);
