@@ -136,7 +136,7 @@ const DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
         }
         if(formResult.customLayout.rows) {
             try {
-                elementConfig = parseInt(formResult.customLayout.rows);
+                elementConfig.rows = parseInt(formResult.customLayout.rows);
             }
             catch(error) {
                 throw Error("Invalid text field size: " + formResult.customLayout.rows);

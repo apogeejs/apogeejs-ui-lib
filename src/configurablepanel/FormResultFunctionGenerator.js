@@ -83,6 +83,13 @@ export default class FormResultFunctionGenerator {
         else {
             expressionType = "value";
         }
+
+        //function arg list if applicable
+        let argList;
+        if(meta) {
+            if(meta.argList) argList = meta.argList;
+            else if(meta.argListKey) argList = containerValue[meta.argListKey];
+        }
             
 
         //get the value or expression
@@ -90,6 +97,10 @@ export default class FormResultFunctionGenerator {
             case "value": 
                 //plain value, not an expression
                 return this._loadSimpleValueEntry(assigneeName,value);
+
+            case "stringified": 
+                //plain value, not an expression
+                return this._loadStringifiedValueEntry(assigneeName,value);
 
             case "simple":
             case "code":
@@ -99,6 +110,9 @@ export default class FormResultFunctionGenerator {
             case "reference":
                 //this is a variable reference 
                 return this._loadReferenceExpressionEntry(assigneeName,value);
+
+            case "function":
+                return this._loadFunctionExpression(assigneeName,value,argList);
                 
             default:
                 throw new Error("Expression type not supported for " + assigneeName + ": " + expressionType);
@@ -126,6 +140,12 @@ export default class FormResultFunctionGenerator {
     /** This loads to the function body a form element value for a simple JSON literal value. */
     _loadSimpleValueEntry(assigneeName,value) {
         let line = assigneeName + " = " + JSON.stringify(value);
+        this._appendLine(line);
+        return true;
+    }
+
+    _loadStringifiedValueEntry(assigneeName,value) {
+        let line = assigneeName + " = " + value;
         this._appendLine(line);
         return true;
     }
@@ -162,6 +182,19 @@ export default class FormResultFunctionGenerator {
         //from here it is the same as a simple expression
         return this._loadSimpleExpressionEntry(assigneeName,trimmedValue);
 
+    }
+
+    _loadFunctionExpression(assigneeName,functionBody,argList) {
+        //this shouldn't happen, the input should be a string
+        if(!functionBody) functionBody = "";
+        if(!argList) argList = "";
+        
+        let line = assigneeName + " = " + `function(${argList}){\n${functionBody}\n}`;
+
+        this._appendLine(line);
+        //flag this function body as having an expression
+        this.hasExpressions = true;
+        return true;
     }
 
     /** This loads a value to an assignee fpr a panel, as part of the form result function body. */

@@ -472,7 +472,7 @@ export default class ConfigurableFormDesigner {
                 elementConfig.selector = selectorOutput;
             }
             else if(elementFormResult.advancedSelector) {
-                let selectorInput = elementConfig.advancedSelector;
+                let selectorInput = elementFormResult.advancedSelector;
                 let selectorOutput = {};
                 
                 if(selectorInput.keyType == "relative") {
@@ -489,10 +489,7 @@ export default class ConfigurableFormDesigner {
                 }
                 
                 if(selectorInput.action == "custom") {
-                    //create the function
-                    let args = selectorInput.argList;
-                    let body = selectorInput.actionFunction;
-                    selectorOutput.actionFunction = new Function(args,body);
+                    selectorOutput.actionFunction = selectorInput.actionFunction;
                 }
                 else {
                     
@@ -1147,9 +1144,52 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 				label: "Selector Action Arg List: ",
 				size: 60,
 				key: "argList",
+                state: "disabled",
                 selector: {
-					"parentKey": "action",
-					"parentValue": "custom"
+                    parentKeys: ["action","keyType","parentKey","parentKeys"],
+                    actionFunction: (childElement,actionElement,keyTypeElement,parentKeyElement,parentKeysElement) => {
+                        if(actionElement.getValue() == "custom") {
+                            let parentKeys;
+                            if(keyTypeElement.getValue() == "relative") {
+                                parentKeys = [parentKeyElement.getValue()];
+                            }
+                            else if(keyTypeElement.getValue() == "absolute") {
+                                parentKeys = [JSON.parse(parentKeyElement.getValue())];
+                            }
+                            else if(keyTypeElement.getValue() == "multi") {
+                                parentKeys = JSON.parse(parentKeysElement.getValue());
+                            }
+                            else {
+                                parentKeys = [];
+                            }
+
+                            let argListArray = ["childElement"];
+                            parentKeys.forEach(parentKey => {
+                                let baseName;
+                                if(Array.isArray(parentKey)) {
+                                    //absolute key - given as array - we'll use last name
+                                    baseName = parentKey[parentKey.length-1];
+                                }
+                                else {
+                                    baseName = parentKey;
+                                }
+                                baseName += "Element";
+                                //make sure there is no repeat
+                                let name = baseName;
+                                let counter = 0;
+                                while(argListArray.indexOf(name) >= 0) {
+                                    counter++;  //trust this won'e go on forever
+                                    name = baseName + counter;
+                                } 
+                                argListArray.push(name);
+                            })  
+                            childElement.setValue(argListArray.join(","));
+                            childElement.setState("disabled");
+                        }
+                        else {
+                            childElement.setState("inactive");
+                        }
+                    }
 				},
 				hint: "required",
 				help: "The first argument is this child element object. The next arguments are the parent element objects, in order they are specified."
@@ -1164,6 +1204,10 @@ const SELECTOR_ELEMENT_CONFIG_LIST = [
 					"parentKey": "action",
 					"parentValue": "custom"
 				},
+                meta: {
+                    expression: "function",
+                    argListKey: "argList",
+                },
 				hint: "required",
 				help: "This is a function that takes the arg list above and does the desired action on this child element."
 			}

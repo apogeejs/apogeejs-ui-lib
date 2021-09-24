@@ -128,3 +128,116 @@ export default class SubmitElement extends ConfigurableElement {
 }
 
 SubmitElement.TYPE_NAME = "submit";
+
+
+
+//------------------------
+// Form Designer Data
+//------------------------
+
+const FORM_INFO = {
+    "uniqueKey": "basicSubmit",
+	"type": "submit",
+	"label": "Submit",
+	"customLayout": [
+		{
+			"type": "panel",
+			"formData": [
+				{
+                    "type": "checkbox",
+                    "label": "Use Submit Button: ",
+                    "value": true,
+                    "key": "useSubmit"
+                },
+                {
+                    "type": "textField",
+                    "label": "Submit Label: ",
+                    "value": "OK",
+                    "key": "submitLabel",
+                    "selector": {
+                        "parentKey": "useSubmit",
+                        "parentValue": true
+                    }
+                },
+                {
+                    "type": "textarea",
+                    "label": "OnSubmit(formValue): <br>",
+                    "key": "onSubmit",
+                    "selector": {
+                        "parentKey": "useSubmit",
+                        "parentValue": true
+                    },
+                    "meta": {
+                        "expression": "function",
+                        "argList": "formValue"
+                    },
+                    "cols": 80,
+                    "rows": 6
+                },
+                {
+                    "type": "htmlDisplay",
+                    "html": ""
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Use Cancel Button: ",
+                    "value": false,
+                    "key": "useCancel"
+                },
+                {
+                    "type": "textField",
+                    "label": "Cancel Label: ",
+                    "value": "Cancel",
+                    "key": "cancelLabel",
+                    "selector": {
+                        "parentKey": "useCancel",
+                        "parentValue": true
+                    }
+                },
+                {
+                    "type": "textarea",
+                    "label": "onCancel(): <br>",
+                    "key": "onCancel",
+                    "selector": {
+                        "parentKey": "useCancel",
+                        "parentValue": true
+                    },
+                    "meta": {
+                        "expression": "function"
+                    },
+                    "cols": 80,
+                    "rows": 6
+                }
+			],
+			"key": "customLayout"
+		}
+	],
+	"designerFlags": [
+		"hasHint",
+		"hasHelp"
+	]
+}
+
+const DESIGNER_CUSTOM_PROCESSING_FUNCTION = function(formResult,elementConfig) {
+    if(formResult.customLayout) {
+        if(formResult.customLayout.useSubmit) {
+           elementConfig.submitLabel = formResult.customLayout.submitLabel;
+           elementConfig.onSubmit = formResult.customLayout.onSubmit;
+        }
+        if(formResult.customLayout.useCancel) {
+            elementConfig.cancelLabel = formResult.customLayout.cancelLabel;
+            elementConfig.onCancel = formResult.customLayout.onCancel;
+        }
+    }
+
+}
+
+
+const DESIGNER_ELEMENT_INFO = {
+    category: "element",
+    orderKey: FORM_INFO.label,
+    formInfo: FORM_INFO,
+    designerCustomProcessing: DESIGNER_CUSTOM_PROCESSING_FUNCTION
+}
+
+SubmitElement.DESIGNER_ELEMENT_ARRAY = [DESIGNER_ELEMENT_INFO];
