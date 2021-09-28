@@ -313,10 +313,6 @@ export default class ConfigurableFormDesigner {
                 elementContentLayout.push(additionalOptionsElement);
             }
 
-            if(formInfo.designerFlags.indexOf("hasSubmit") >= 0) {
-                elementContentLayout.push(SUBMIT_DESIGNER_LAYOUT);
-            }
-
             //key
             if(formInfo.designerFlags.indexOf("hasKey") >= 0) {
                 elementLayout.push(KEY_ELEMENT_CONFIG);
@@ -528,69 +524,6 @@ export default class ConfigurableFormDesigner {
             return this.getErrorElementLayout("Error making element: " + error.toString());
         }
     }
-}
-
-/** This is the added layout if there has a submit button. */
-const SUBMIT_DESIGNER_LAYOUT = {
-    "type": "panel",
-    "formData": [
-        {
-            "type": "htmlDisplay",
-            "html": "<hr style='border-top: 1px solid rgba(0,0,0,.4);'>"
-        },
-        {
-            "type": "heading",
-            "text": "Submit"
-        },
-        {
-            "type": "invisible",
-            "value": "submit",
-            "key": "type"
-        },
-        {
-            "type": "horizontalLayout",
-            "formData": [
-                {
-                    "type": "checkbox",
-                    "label": "Submit Button:",
-                    "value": true,
-                    "key": "useSubmit"
-                },
-                {
-                    "type": "textField",
-                    "label": "Text: ",
-                    "value": "OK",
-                    "key": "submitLabel",
-                    "selector": {
-                        "parentKey": "useSubmit",
-                        "parentValue": true
-                    }
-                }
-            ]
-        },
-        {
-            "type": "horizontalLayout",
-            "formData": [
-                {
-                    "type": "checkbox",
-                    "label": "Cancel Button: ",
-                    "value": false,
-                    "key": "useCancel"
-                },
-                {
-                    "type": "textField",
-                    "label": "Text: ",
-                    "value": "Cancel",
-                    "key": "cancelLabel",
-                    "selector": {
-                        "parentKey": "useCancel",
-                        "parentValue": true
-                    }
-                }
-            ]
-        }
-    ],
-    "key": "submit"
 }
 
 //layout items to make the form generator layout
