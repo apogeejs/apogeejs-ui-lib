@@ -1,5 +1,5 @@
 import uiutil from "/apogeejs-ui-lib/src/uiutil.js";
-import dialogMgr from "/apogeejs-ui-lib/src/window/dialogMgr.js";
+//import dialogMgr from "/apogeejs-ui-lib/src/window/dialogMgr.js";
 
 /** This dialog has a title, message and a number of buttons and associated actions. 
  * Both the title and message are optional.
@@ -10,25 +10,27 @@ import dialogMgr from "/apogeejs-ui-lib/src/window/dialogMgr.js";
 */
 export function showSimpleActionDialog(title,msg,buttonTextList,buttonActionList) {
 
-    var dialog = dialogMgr.createDialog({"movable":true});
+    //var dialog = dialogMgr.createDialog({"movable":true});
+    let dialog = document.createElement("dialog")
     
     //add a scroll container
-    var contentContainer = uiutil.createElement("div",null,
-        {
-			"display":"block",
-            "position":"relative",
-            "top":"0px",
-            "height":"100%",
-            "overflow": "auto"
-        });
-	dialog.setContent(contentContainer,uiutil.SIZE_WINDOW_TO_CONTENT);
+    // var contentContainer = uiutil.createElement("div",null,
+    //     {
+	// 		"display":"block",
+    //         "position":"relative",
+    //         "top":"0px",
+    //         "height":"100%",
+    //         "overflow": "auto"
+    //     });
+	//dialog.setContent(contentContainer,uiutil.SIZE_WINDOW_TO_CONTENT);
+    //dialog.appendChild(contentContainer)
     
 	var content = uiutil.createElement("div",null,
 			{
 				"display":"table",
 				"overflow":"hidden"
 			});
-	contentContainer.appendChild(content);
+	//contentContainer.appendChild(content);
     
     var line;
 
@@ -56,15 +58,19 @@ export function showSimpleActionDialog(title,msg,buttonTextList,buttonActionList
         let buttonAction = () => {
             //include the action if one is specified
             if((buttonActionList)&&(buttonActionList.length > i)&&(buttonActionList[i])) buttonActionList[i]();
-            dialogMgr.closeDialog(dialog);
+            //dialogMgr.closeDialog(dialog);
+            dialog.close();
+            document.body.removeChild(dialog);
         }
         line.appendChild(uiutil.createElement("button",{"className":"dialogButton","innerHTML":buttonLabel,"onclick":buttonAction}));
         content.appendChild(line);
     }
-    dialog.setContent(content,uiutil.SIZE_WINDOW_TO_CONTENT);  
+    dialog.appendChild(content);  
     
     //show dialog
-    dialogMgr.showDialog(dialog);
+    //dialogMgr.showDialog(dialog);
+    document.body.appendChild(dialog);
+    dialog.showModal()
 }
 
 
