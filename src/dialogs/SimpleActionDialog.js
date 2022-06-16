@@ -60,7 +60,7 @@ export function showSimpleActionDialog(title,msg,buttonTextList,buttonActionList
             if((buttonActionList)&&(buttonActionList.length > i)&&(buttonActionList[i])) buttonActionList[i]();
             //dialogMgr.closeDialog(dialog);
             dialog.close();
-            document.body.removeChild(dialog);
+            //document.body.removeChild(dialog);
         }
         line.appendChild(uiutil.createElement("button",{"className":"dialogButton","innerHTML":buttonLabel,"onclick":buttonAction}));
         content.appendChild(line);

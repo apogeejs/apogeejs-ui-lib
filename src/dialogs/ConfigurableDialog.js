@@ -18,7 +18,7 @@ export function showConfigurableDialog(layout,onSubmitFunction,optionalOnCancelF
         if(optionalOnCancelFunction) optionalOnCancelFunction();
         //dialogMgr.closeDialog(dialog);
         dialog.close();
-        document.body.removeChild(dialog);
+        //document.body.removeChild(dialog);
     }
     //submit
     let onSubmit = function(formValue) {
@@ -27,7 +27,7 @@ export function showConfigurableDialog(layout,onSubmitFunction,optionalOnCancelF
         if(closeDialog) {
             //dialogMgr.closeDialog(dialog);
             dialog.close();
-            document.body.removeChild(dialog);
+            //document.body.removeChild(dialog);
         }
     }
 
