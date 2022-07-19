@@ -268,8 +268,11 @@ export default class ConfigurableElement {
     // Function Body Generator Static Methods
     //----------------------------------
 
-    /** This gets a code exrpession to return the value of the element given by the bvalue and layout. */
-    static getValueCodeText(value,layout,containerValue) {
+    /** This gets a code exrpession to return the value of the element given by the bvalue and layout. 
+     * It also returns a flag indicating if an expression is present or not.
+     * return value: {hasExpression, valueCodeText}
+    */
+    static createValueCodeText(value,layout,containerValue) {
 
         if(value === undefined) {
             return "undefined";  //THIS IS NOT RIGHT!!!??
@@ -287,40 +290,55 @@ export default class ConfigurableElement {
             }
         }
         else {
-            expressionType = "value";
+            expressionType = "value"
         }
         
         //get the value or expression
+        let hasExpression
+        let valueCodeText
         switch(expressionType) {
             case "value": 
                 //plain value, not an expression
-                return getSimpleValueEntry(value);
+                valueCodeText = getSimpleValueEntry(value)
+                hasExpression = false
+                break
         
             case "stringified": 
                 //plain value, not an expression
-                return getStringifiedValueEntry(value);
+                valueCodeText = getStringifiedValueEntry(value)
+                hasExpression = false
+                break
         
             case "simple":
             case "code":
                 //this is a javascript expression
-                return getSimpleExpressionEntry(value);
+                valueCodeText = getSimpleExpressionEntry(value)
+                hasExpression = true
+                break
         
             case "reference":
                 //this is a variable reference 
-                return getReferenceExpressionEntry(value);
+                valueCodeText = getReferenceExpressionEntry(value)
+                hasExpression = true
+                break
         
             case "function":
+                //this is a function
                 let argList;
                 if(meta) {
                     if(meta.argList) argList = meta.argList;
                     else if(meta.argListKey) argList = containerValue[meta.argListKey];
                 }
                 else argList = ""
-                return getFunctionExpression(value,argList);
+                valueCodeText = getFunctionExpression(value,argList)
+                hasExpression = true
+                break
                 
             default:
-                throw new Error("Expression type not supported for " + expressionType);
+                throw new Error("Expression type not supported for " + expressionType)
         }
+
+        return {hasExpression, valueCodeText}
     }
 
     //===================================

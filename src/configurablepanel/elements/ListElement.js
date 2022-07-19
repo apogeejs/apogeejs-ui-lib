@@ -236,27 +236,35 @@ export default class ListElement extends ConfigurableElement {
     //---------------------------------
 
     /** This gets a code expression to return the value of the element given by the value and layout. */
-    static getValueCodeText(value,layout,containerValue) {
+    static createValueCodeText(value,layout,containerValue) {
         //CONTAINER VALUE USAGE (META SELECTOR) NOT SUPPORTED
 
-        let lineArray = []
+        let outputStruct = {
+            hasExpression: false,
+            lineArray: []
+        }
 
         if(layout.entryTypes) {
             //for multi list
-            value.forEach( childEntry => ListElement.processMultiListValue(childEntry,layout.entryTypes,lineArray))
+            value.forEach( childEntry => ListElement.processMultiListValue(childEntry,layout.entryTypes,outputStruct))
         }
         else {
-            value.forEach( childValue => ListElement.processSingleListValue(childValue,layout.entryType,lineArray))
+            value.forEach( childValue => ListElement.processSingleListValue(childValue,layout.entryType,outputStruct))
         }
-        //wrap this with the top
-        return `[\n${lineArray.join(",\n")}\n]`
+        
+        return {
+            hasExpression: outputStruct.hasExpression,
+            valueCodeText: `[\n${outputStruct.lineArray.join(",\n")}\n]`
+        }
     }
 
-    processSingleListValue(childValue,entryType,lineArray) {
-        lineArray.push(ConfiguerablePanel.getElementValueCodeText(childValue,entryType.layout))
+    static processSingleListValue(childValue,entryType,outputStruct) {
+        let {hasExpression, valueCodeText} = ConfiguerablePanel.getElementValueCodeText(childValue,entryType.layout)
+        outputStruct.lineArray.push(valueCodeText)
+        if(hasExpression) outputStruct.hasExpression = true
     }
 
-    processMultiListValue(childEntry,entryTypes,lineArray) {
+    static processMultiListValue(childEntry,entryTypes,outputStruct) {
         if(childEntry.key) {
             let entryType = entryTypes.find(entryType => entryType.layout.key == childEntry.key)
             if(!entryType) throw new Error("entry type not found for key: " + childEntry.key)
@@ -265,7 +273,9 @@ export default class ListElement extends ConfigurableElement {
             let childLayout = entryType.layout
             let childValue = childEntry.value
            
-            lineArray.push(ConfiguerablePanel.getElementValueCodeText(childValue,childLayout))
+            let {hasExpression, valueCodeText} = ConfiguerablePanel.getElementValueCodeText(childValue,childLayout)
+            outputStruct.lineArray.push(valueCodeText)
+            if(hasExpression) outputStruct.hasExpression = true
         
         }
         else {

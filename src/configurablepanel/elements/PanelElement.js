@@ -99,12 +99,19 @@ export default class PanelElement extends ConfigurableElement {
     //---------------------------------
 
     /** This gets a code expression to return the value of the element given by the value and layout. */
-    static getValueCodeText(value,layout,containerValue) {
+    static createValueCodeText(value,layout,containerValue) {
         //CONTAINER VALUE USAGE (META SELECTOR) NOT SUPPORTED
-        
-        let lineArray = []
-        panelLayout.formData.forEach( childLayout => ConfigurablePanel.processPanelLayout(layout,value,lineArray))
-        return `{\n${lineArray.join(",\n")}\n}`
+        let outputStruct = {
+            hasExpression: false,
+            lineArray: []
+        }
+
+        layout.formData.forEach( childLayout => ConfigurablePanel.processPanelLayout(childLayout,value,outputStruct))
+
+        return {
+            hasExpression: outputStruct.hasExpression,
+            valueCodeText: `{\n${outputStruct.lineArray.join(",\n")}\n}`
+        }
     }
     
     //===================================
