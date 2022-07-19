@@ -93,6 +93,19 @@ export default class PanelElement extends ConfigurableElement {
         this.panel.destroy();
         this.panel = null;
     }
+
+    //---------------------------------
+    // Value Code Generation
+    //---------------------------------
+
+    /** This gets a code expression to return the value of the element given by the value and layout. */
+    static getValueCodeText(value,layout,containerValue) {
+        //CONTAINER VALUE USAGE (META SELECTOR) NOT SUPPORTED
+        
+        let lineArray = []
+        panelLayout.formData.forEach( childLayout => ConfigurablePanel.processPanelLayout(layout,value,lineArray))
+        return `{\n${lineArray.join(",\n")}\n}`
+    }
     
     //===================================
     // internal Methods

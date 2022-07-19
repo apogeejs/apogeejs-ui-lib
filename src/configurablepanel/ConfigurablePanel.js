@@ -419,6 +419,53 @@ export default class ConfigurablePanel {
             getErrorMessageLayoutInfo("Generated layout not available. Form designer has not been initialized!");
         }
     }
+
+    //======================================
+    // Form to function body (for references and expressions)
+    //======================================
+
+    static usesFunctionBody(formLayout) {
+        throw new Error("Implement uses function body!")
+    }
+
+    /** This converts a form value to a function body, used to evaluate references and expressions in form inputs. */
+    static getResultFunctionBody(formValue,formLayout) {
+        let lineArray = []
+
+        //I should check if the panel layout is the form data or the wrapped form data???
+
+        formLayout.forEach( childLayout => ConfigurablePanel.processPanelLayout(childLayout,formValue,lineArray))
+
+        //wrap this with the top
+        return `return {\n${lineArray.join(",\n")}\n}`
+    }
+
+    /** This is used internally to generate the code for a panel. */
+    static processPanelLayout(childLayout,panelValue,lineArray) {
+        if(childLayout.key) {
+            //this is a ConfigurableElement with a value
+            let childValue = panelValue[childLayout.key]
+            if(childValue !== undefined) {
+                let valueCodeText = ConfigurablePanel.getElementValueCodeText(childValue,childLayout,panelValue)
+                let lineCodeText = `${childLayout.key}:${valueCodeText}`
+                lineArray.push(lineCodeText)
+            }
+        }
+        else if(childLayout.formData) {
+            //this is a ConfiguerableLayoutContainer
+            let layoutLayout = childLayout.formData
+            layoutLayout.forEach( childLayout => ConfigurablePanel.processPanelLayout(childLayout,panelValue,lineArray))
+        }
+    }
+
+    /** This retrieves the code text for the elements value. This method should be
+     * overridden for elements with alternate code translations. */
+     static getElementValueCodeText(value,layout,containerValue) {
+        let elementClass = ConfigurablePanel.elementMap[layout.type]
+        if(!elementClass) throw new Error("Error: element type not found: " + layout.type)
+        if(elementClass.getValueCodeText) return elementClass.getValueCodeText(value,layout,containerValue)
+        else throw new Error("Error processing for code! Code conversion function not fount") 
+    }
 }
 
 //static fields

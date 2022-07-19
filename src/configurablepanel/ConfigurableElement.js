@@ -263,7 +263,66 @@ export default class ConfigurableElement {
         }
         this.errorDiv.innerHTML = errorMsg;
     }
-    
+
+    //----------------------------------
+    // Function Body Generator Static Methods
+    //----------------------------------
+
+    /** This gets a code exrpession to return the value of the element given by the bvalue and layout. */
+    static getValueCodeText(value,layout,containerValue) {
+
+        if(value === undefined) {
+            return "undefined";  //THIS IS NOT RIGHT!!!??
+        }
+        
+        //get the expression type
+        let expressionType;
+        let meta = layout.meta
+        if((meta)&&(meta.expression)) {
+            if(meta.expression == "choice") {
+                expressionType = getExpressionChoiceType(containerValue,meta);
+            }
+            else {
+                expressionType = meta.expression;
+            }
+        }
+        else {
+            expressionType = "value";
+        }
+        
+        //get the value or expression
+        switch(expressionType) {
+            case "value": 
+                //plain value, not an expression
+                return getSimpleValueEntry(value);
+        
+            case "stringified": 
+                //plain value, not an expression
+                return getStringifiedValueEntry(value);
+        
+            case "simple":
+            case "code":
+                //this is a javascript expression
+                return getSimpleExpressionEntry(value);
+        
+            case "reference":
+                //this is a variable reference 
+                return getReferenceExpressionEntry(value);
+        
+            case "function":
+                let argList;
+                if(meta) {
+                    if(meta.argList) argList = meta.argList;
+                    else if(meta.argListKey) argList = containerValue[meta.argListKey];
+                }
+                else argList = ""
+                return getFunctionExpression(value,argList);
+                
+            default:
+                throw new Error("Expression type not supported for " + expressionType);
+        }
+    }
+
     //===================================
     // internal Methods
     //==================================
@@ -469,4 +528,71 @@ function containsCommonValue(array1,array2) {
     return array1.some( value => (array2.indexOf(value) >= 0) );
 }
 
+//---------------------
+// Value Code Generation functions
+//---------------------
+
+function getExpressionChoiceType(containerValue,meta) {
+    if(!containerValue) throw new Expression("Error in choice expression. Not in a valid parent object.")
+    if(!meta.expressionChoiceKey) throw new Error("Meta expressionChoiceKey entry missing");
+
+    let expressionType;
+    if(meta.expressionChoiceMap) {
+        let expressionInput = containerValue[meta.expressionChoiceKey];
+        expressionType = meta.expressionChoiceMap[expressionInput];
+    }
+    else {
+        expressionType = containerValue[meta.expressionChoiceKey];
+    }
+    if(!expressionType) throw new Error("Expression choice not found for key for: " + meta.expressionChoiceKey);
+    
+    return expressionType;
+}
+
+/** This loads to the function body a form element value for a simple JSON literal value. */
+function getSimpleValueEntry(value) {
+    return JSON.stringify(value)
+}
+
+function getStringifiedValueEntry(value) {
+    return value
+}
+
+/** This loads a value to the function body for a javascript expression. */
+function getSimpleExpressionEntry(value) {
+    //this shouldn't happen, the input should be a string
+    if(value === null) return null
+
+    let trimmedValue = value.toString().trim();
+    if(trimmedValue === "") return null
+    
+    return trimmedValue
+}
+
+/** This laods a value to the function body for a reference expression. This means the value should be
+ * then name of a variable, such as a member name por a member name dot one of its fields.
+ */
+function getReferenceExpressionEntry(value) {
+    //this shouldn't happen, the input should be a string
+    if(value === null) return false;
+
+    let trimmedValue = value.toString().trim();
+    if(trimmedValue === "") return false;
+
+    if(!isValidQualifiedVariableName(trimmedValue)) {
+        throw new Error("The following is not a valid reference: " + trimmedValue + " (Required: a valid variable name, dots allowed)");
+    }
+
+    //from here it is the same as a simple expression
+    return getSimpleExpressionEntry(trimmedValue);
+
+}
+
+function getFunctionExpression(functionBody,argList) {
+    //this shouldn't happen, the input should be a string
+    if(!functionBody) functionBody = "";
+    if(!argList) argList = "";
+    
+    return `function(${argList}){\n${functionBody}\n}`
+}
 

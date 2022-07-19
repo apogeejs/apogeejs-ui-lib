@@ -231,6 +231,48 @@ export default class ListElement extends ConfigurableElement {
         this.listEntries = [];
     }
 
+    //---------------------------------
+    // Value Code Generation
+    //---------------------------------
+
+    /** This gets a code expression to return the value of the element given by the value and layout. */
+    static getValueCodeText(value,layout,containerValue) {
+        //CONTAINER VALUE USAGE (META SELECTOR) NOT SUPPORTED
+
+        let lineArray = []
+
+        if(layout.entryTypes) {
+            //for multi list
+            value.forEach( childEntry => ListElement.processMultiListValue(childEntry,layout.entryTypes,lineArray))
+        }
+        else {
+            value.forEach( childValue => ListElement.processSingleListValue(childValue,layout.entryType,lineArray))
+        }
+        //wrap this with the top
+        return `[\n${lineArray.join(",\n")}\n]`
+    }
+
+    processSingleListValue(childValue,entryType,lineArray) {
+        lineArray.push(ConfiguerablePanel.getElementValueCodeText(childValue,entryType.layout))
+    }
+
+    processMultiListValue(childEntry,entryTypes,lineArray) {
+        if(childEntry.key) {
+            let entryType = entryTypes.find(entryType => entryType.layout.key == childEntry.key)
+            if(!entryType) throw new Error("entry type not found for key: " + childEntry.key)
+            
+            //get the function body lines for this child
+            let childLayout = entryType.layout
+            let childValue = childEntry.value
+           
+            lineArray.push(ConfiguerablePanel.getElementValueCodeText(childValue,childLayout))
+        
+        }
+        else {
+            throw new Error("Key not found: " + childValue.key)
+        }
+    }
+
     //===================================
     // internal Methods
     //==================================
