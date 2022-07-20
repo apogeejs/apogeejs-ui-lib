@@ -251,7 +251,7 @@ export default class ListElement extends ConfigurableElement {
         else {
             value.forEach( childValue => ListElement.processSingleListValue(childValue,layout.entryType,outputStruct))
         }
-        
+
         return {
             hasExpression: outputStruct.hasExpression,
             valueCodeText: `[\n${outputStruct.lineArray.join(",\n")}\n]`
@@ -259,7 +259,7 @@ export default class ListElement extends ConfigurableElement {
     }
 
     static processSingleListValue(childValue,entryType,outputStruct) {
-        let {hasExpression, valueCodeText} = ConfiguerablePanel.getElementValueCodeText(childValue,entryType.layout)
+        let {hasExpression, valueCodeText} = ConfigurablePanel.createElementValueCodeText(childValue,entryType.layout)
         outputStruct.lineArray.push(valueCodeText)
         if(hasExpression) outputStruct.hasExpression = true
     }
@@ -273,8 +273,8 @@ export default class ListElement extends ConfigurableElement {
             let childLayout = entryType.layout
             let childValue = childEntry.value
            
-            let {hasExpression, valueCodeText} = ConfiguerablePanel.getElementValueCodeText(childValue,childLayout)
-            outputStruct.lineArray.push(valueCodeText)
+            let {hasExpression, valueCodeText} = ConfigurablePanel.createElementValueCodeText(childValue,childLayout)
+            outputStruct.lineArray.push(`{\nkey: "${childEntry.key}",\nvalue: ${valueCodeText}\n}`)
             if(hasExpression) outputStruct.hasExpression = true
         
         }
@@ -530,8 +530,7 @@ const SIMPLE_FORM_INFO = {
                 "key": "key"
             },
             {
-                "type": "custom",
-                "builderFunction": entryTypeSelectorBuilder,
+                "type": "designerListEntry",
                 "key": "value",
                 "selector": {
                     "parentKey": "key",
@@ -571,7 +570,7 @@ function simpleListCompleteChildListLayout(childLayoutEntry,elementLayoutInfoLis
     //let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryType"));
     let selectEntry = childLayoutEntry.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
-    let entryTypeEntry = childLayoutEntry.formData.find(layout => (layout.type == "custom"));
+    let entryTypeEntry = childLayoutEntry.formData.find(layout => (layout.type == "designerListEntry"));
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }
@@ -623,9 +622,8 @@ const MULTI_ENTRY_FORM_INFO = {
                         "key": "key",
                     },
                     {
-                        "type": "custom",
+                        "type": "designerListEntry",
                         "key": "value",
-                        "builderFunction": entryTypeSelectorBuilder,
                         "selector": {
                             "parentKey": "key",
                             "actionFunction": (childElement,parentElement) => {
@@ -681,7 +679,7 @@ function multiEntryListCompleteChildListLayout(childLayoutEntry,elementLayoutInf
     //let childLayoutEntry = contentLayout.find(layout => (layout.key == "entryTypes"));
     let selectEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "dropdown"));
     selectEntry.entries = dropdownEntries;
-    let entryTypeEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "custom"));
+    let entryTypeEntry = childLayoutEntry.entryType.layout.formData.find(layout => (layout.type == "designerListEntry"));
     entryTypeEntry.childLayoutMap = childLayoutMap;
     
 }

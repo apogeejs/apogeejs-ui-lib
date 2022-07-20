@@ -614,3 +614,12 @@ function getFunctionExpression(functionBody,argList) {
     return `function(${argList}){\n${functionBody}\n}`
 }
 
+/** This test a general qualified variable name. There is no provision for excluded member names. 
+ * @private */
+const QUALFIED_NAME_PATTERN = /([a-zA-Z_$][0-9a-zA-Z_$]*)+(\.+[a-zA-Z_$][0-9a-zA-Z_$]*)*/;
+
+function isValidQualifiedVariableName(variableName) {
+    let nameResult = QUALFIED_NAME_PATTERN.exec(variableName);
+    return ((nameResult)&&(nameResult[0] == variableName));
+}
+

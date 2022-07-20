@@ -17,6 +17,8 @@ import SubmitElement from "/apogeejs-ui-lib/src/configurablepanel/elements/Submi
 import TextareaElement from "/apogeejs-ui-lib/src/configurablepanel/elements/TextareaElement.js";
 import TextFieldElement from "/apogeejs-ui-lib/src/configurablepanel/elements/TextFieldElement.js";
 
+import DesignerListEntryElement from "/apogeejs-ui-lib/src/configurablepanel/elements/DesignerListEntryElement.js";
+
 import HorizontalLayout from "/apogeejs-ui-lib/src/configurablepanel/elements/HorizontalLayout.js";
 import ShowHideLayout from "/apogeejs-ui-lib/src/configurablepanel/elements/ShowHideLayout.js";
 
@@ -37,6 +39,8 @@ ConfigurablePanel.addConfigurableElement(SpacerElement);
 ConfigurablePanel.addConfigurableElement(SubmitElement);
 ConfigurablePanel.addConfigurableElement(TextareaElement);
 ConfigurablePanel.addConfigurableElement(TextFieldElement);
+
+ConfigurablePanel.addConfigurableElement(DesignerListEntryElement);
 
 ConfigurablePanel.addConfigurableElement(HorizontalLayout);
 ConfigurablePanel.addConfigurableElement(ShowHideLayout);
